@@ -1,9 +1,13 @@
 export default async function handler(req, res) {
   try {
-    const { url } = req.body;
+    let { url } = req.body;
 
     if (!url) {
       return res.status(400).json({ error: "No URL provided" });
+    }
+
+    if (!/^https?:\/\//i.test(url)) {
+      url = "https://" + url;
     }
 
     const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
@@ -59,7 +63,8 @@ No extra text, just the JSON.`
     });
 
     const anthropicData = await anthropicResponse.json();
-    const text = anthropicData?.content?.[0]?.text || "{}";
+    const rawText = anthropicData?.content?.[0]?.text || "{}";
+    const text = rawText.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
 
     let parsed;
     try {
