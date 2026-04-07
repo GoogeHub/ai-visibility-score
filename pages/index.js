@@ -12,6 +12,19 @@ const scoreBackground = (score) => {
   return "#fef2f2";
 };
 
+const scoreBorder = (score) => {
+  if (score >= 71) return "#bbf7d0";
+  if (score >= 41) return "#fde68a";
+  return "#fecaca";
+};
+
+const confidenceColor = (confidence) => {
+  if (confidence === "High") return "#22c55e";
+  if (confidence === "Medium") return "#f59e0b";
+  if (confidence === "Low") return "#ef4444";
+  return "#94a3b8";
+};
+
 export default function Home() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState(null);
@@ -39,7 +52,7 @@ export default function Home() {
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       padding: "60px 20px",
     }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 48 }}>
@@ -91,7 +104,7 @@ export default function Home() {
         {/* Loading */}
         {loading && (
           <div style={{ textAlign: "center", color: "#64748b", fontSize: 15 }}>
-            Scraping site and analyzing with AI...
+            Scraping site and checking AI signals...
           </div>
         )}
 
@@ -99,38 +112,88 @@ export default function Home() {
         {result && !result.error && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* Score Card */}
-            <div style={{
-              backgroundColor: scoreBackground(result.score),
-              border: `1px solid ${scoreColor(result.score)}40`,
-              borderRadius: 12,
-              padding: 32,
-              textAlign: "center",
-            }}>
+            {/* Two Score Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+
+              {/* Web Signals Score */}
               <div style={{
-                fontSize: 72,
-                fontWeight: 800,
-                color: scoreColor(result.score),
-                lineHeight: 1,
+                backgroundColor: scoreBackground(result.web_score),
+                border: `1px solid ${scoreBorder(result.web_score)}`,
+                borderRadius: 12,
+                padding: "24px 16px",
+                textAlign: "center",
               }}>
-                {result.score}
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                  Web Signals
+                </div>
+                <div style={{ fontSize: 56, fontWeight: 800, color: scoreColor(result.web_score), lineHeight: 1 }}>
+                  {result.web_score}
+                </div>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>out of 100</div>
+                <div style={{
+                  display: "inline-block",
+                  marginTop: 10,
+                  padding: "3px 12px",
+                  backgroundColor: scoreColor(result.web_score),
+                  color: "#fff",
+                  borderRadius: 99,
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}>
+                  {result.web_label}
+                </div>
               </div>
-              <div style={{ fontSize: 18, color: "#475569", marginTop: 6 }}>out of 100</div>
+
+              {/* AI Recognition Score */}
               <div style={{
-                display: "inline-block",
-                marginTop: 12,
-                padding: "4px 14px",
-                backgroundColor: scoreColor(result.score),
-                color: "#fff",
-                borderRadius: 99,
-                fontSize: 14,
-                fontWeight: 600,
+                backgroundColor: scoreBackground(result.recognition_score),
+                border: `1px solid ${scoreBorder(result.recognition_score)}`,
+                borderRadius: 12,
+                padding: "24px 16px",
+                textAlign: "center",
               }}>
-                {result.label}
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                  AI Recognition
+                </div>
+                <div style={{ fontSize: 56, fontWeight: 800, color: scoreColor(result.recognition_score), lineHeight: 1 }}>
+                  {result.recognition_score}
+                </div>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>out of 100</div>
+                <div style={{
+                  display: "inline-block",
+                  marginTop: 10,
+                  padding: "3px 12px",
+                  backgroundColor: confidenceColor(result.confidence),
+                  color: "#fff",
+                  borderRadius: 99,
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}>
+                  {result.confidence}
+                </div>
               </div>
+
             </div>
 
-            {/* Explanation */}
+            {/* What AI knows */}
+            <div style={{
+              backgroundColor: "#fff",
+              border: "1px solid #e2e8f0",
+              borderRadius: 12,
+              padding: 24,
+            }}>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px" }}>
+                What AI Already Knows
+              </h2>
+              {result.business_name && (
+                <div style={{ fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>{result.business_name}</div>
+              )}
+              <p style={{ margin: 0, color: "#334155", fontSize: 15, lineHeight: 1.7 }}>
+                {result.known_for}
+              </p>
+            </div>
+
+            {/* Web Summary */}
             <div style={{
               backgroundColor: "#fff",
               border: "1px solid #e2e8f0",
@@ -138,7 +201,7 @@ export default function Home() {
               padding: 24,
             }}>
               <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>
-                Summary
+                Website Signal Summary
               </h2>
               <p style={{ margin: 0, color: "#334155", fontSize: 15, lineHeight: 1.7 }}>
                 {result.explanation}
