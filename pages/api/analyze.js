@@ -36,19 +36,24 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "user",
-            content: `You are analyzing a company's website for AI visibility.
+            content: `Analyze this website for AI visibility.
 
 Website URL: ${url}
 
+Return EXACTLY in this format:
+
+Score: X/100
+
+Explanation:
+(2–3 sentences)
+
+Recommendations:
+- ...
+- ...
+- ...
+
 Website content:
-${pageContent}
-
-Give:
-1. An AI visibility score out of 100
-2. A one-paragraph explanation
-3. Three short recommendations
-
-Keep it concise and readable.`
+${pageContent}`
           }
         ]
       })
