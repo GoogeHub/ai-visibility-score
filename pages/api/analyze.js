@@ -13,18 +13,22 @@ export default async function handler(req, res) {
     const baseUrl = new URL(url).origin;
 
     // Fetch all web signals AND LLM recognition in parallel
-    const [scrapeResult, robotsResult, llmsResult, recognitionResult] = await Promise.allSettled([
+    const [scrapeResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult] = await Promise.allSettled([
       fetch("https://api.firecrawl.dev/v1/scrape", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${process.env.FIRECRAWL_API_KEY}`
         },
-        body: JSON.stringify({ url, formats: ["markdown", "html"] })
+        body: JSON.stringify({ url, formats: ["markdown"] })
       }).then(r => r.json()),
 
       fetch(`${baseUrl}/robots.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
       fetch(`${baseUrl}/llms.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
+
+      // Fetch raw HTML directly for schema extraction (Firecrawl strips script tags)
+      fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; AIVisibilityBot/1.0)" } })
+        .then(r => r.ok ? r.text() : null).catch(() => null),
 
       // Ask Claude what it already knows about this business from training data
       fetch("https://api.anthropic.com/v1/messages", {
@@ -57,12 +61,12 @@ Return ONLY valid JSON:
     // Parse web signals
     const scrapeData = scrapeResult.status === "fulfilled" ? scrapeResult.value : null;
     const pageContent = scrapeData?.data?.markdown || "No website content could be retrieved.";
-    const pageHtml = scrapeData?.data?.html || "";
     const robotsTxt = robotsResult.status === "fulfilled" ? robotsResult.value : null;
     const llmsTxt = llmsResult.status === "fulfilled" ? llmsResult.value : null;
+    const rawHtml = rawHtmlResult.status === "fulfilled" ? rawHtmlResult.value : "";
 
-    // Extract JSON-LD structured data from HTML
-    const schemaMatches = [...pageHtml.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+    // Extract JSON-LD structured data from raw HTML
+    const schemaMatches = [...(rawHtml || "").matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
     const schemaData = schemaMatches.map(m => {
       try { return JSON.parse(m[1]); } catch { return null; }
     }).filter(Boolean);
