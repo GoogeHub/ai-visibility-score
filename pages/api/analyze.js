@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   const data = await response.json();
 
-  const text = data.content?.[0]?.text || "Error getting result";
-
-  res.status(200).json({ result: text });
+  res.status(200).json({
+    result: JSON.stringify(data, null, 2)
+  });
 }
