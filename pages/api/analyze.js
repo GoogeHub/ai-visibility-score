@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     const { url } = req.body;
 
     if (!url) {
-      return res.status(400).json({ result: "No URL provided" });
+      return res.status(400).json({ error: "No URL provided" });
     }
 
     const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
@@ -32,38 +32,44 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 400,
+        max_tokens: 800,
         messages: [
           {
             role: "user",
-            content: `Analyze this website for AI visibility.
+            content: `Analyze this website for AI visibility — meaning how well the site is optimized to be understood, cited, and recommended by AI systems like ChatGPT, Claude, and Perplexity.
 
 Website URL: ${url}
 
-Return EXACTLY in this format:
-
-Score: X/100
-
-Explanation:
-(2–3 sentences)
-
-Recommendations:
-- ...
-- ...
-- ...
-
 Website content:
-${pageContent}`
+${pageContent}
+
+Return ONLY a valid JSON object with exactly these fields:
+{
+  "score": (number 0-100),
+  "label": (one of: "Poor", "Fair", "Good", "Excellent"),
+  "explanation": (2-3 sentence summary of the site's AI visibility),
+  "strengths": [array of 2-3 short strings of what the site does well],
+  "recommendations": [array of 3-4 short actionable strings for improvement]
+}
+
+No extra text, just the JSON.`
           }
         ]
       })
     });
 
     const anthropicData = await anthropicResponse.json();
-    const text = anthropicData?.content?.[0]?.text || "Error getting result";
+    const text = anthropicData?.content?.[0]?.text || "{}";
 
-    res.status(200).json({ result: text });
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      return res.status(500).json({ error: "Failed to parse AI response" });
+    }
+
+    res.status(200).json(parsed);
   } catch (error) {
-    res.status(500).json({ result: `Server error: ${error.message}` });
+    res.status(500).json({ error: `Server error: ${error.message}` });
   }
 }
