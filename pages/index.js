@@ -1,261 +1,205 @@
-import { useState } from "react";
+import { useRouter } from "next/router";
 
-const scoreColor = (score) => {
-  if (score >= 71) return "#22c55e";
-  if (score >= 41) return "#f59e0b";
-  return "#ef4444";
-};
+export default function Landing() {
+  const router = useRouter();
 
-const scoreBackground = (score) => {
-  if (score >= 71) return "#f0fdf4";
-  if (score >= 41) return "#fffbeb";
-  return "#fef2f2";
-};
-
-const scoreBorder = (score) => {
-  if (score >= 71) return "#bbf7d0";
-  if (score >= 41) return "#fde68a";
-  return "#fecaca";
-};
-
-const confidenceColor = (confidence) => {
-  if (confidence === "High") return "#22c55e";
-  if (confidence === "Medium") return "#f59e0b";
-  if (confidence === "Low") return "#ef4444";
-  return "#94a3b8";
-};
-
-export default function Home() {
-  const [url, setUrl] = useState("");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit() {
-    setLoading(true);
-    setResult(null);
-
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
-    });
-
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-  }
+  const ctaButton = (dark = true) => ({
+    padding: "16px 36px",
+    backgroundColor: dark ? "#0f172a" : "#fff",
+    color: dark ? "#fff" : "#0f172a",
+    border: "none",
+    borderRadius: 10,
+    fontSize: 17,
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "inline-block",
+  });
 
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#f8fafc",
+      backgroundColor: "#fff",
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      padding: "60px 20px",
     }}>
-      <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h1 style={{ fontSize: 32, fontWeight: 700, color: "#0f172a", margin: 0 }}>
-            AI Visibility Score
-          </h1>
-          <p style={{ color: "#64748b", marginTop: 10, fontSize: 16 }}>
-            See how visible your website is to AI systems like ChatGPT, Claude, and Perplexity.
+      {/* Nav */}
+      <nav style={{
+        padding: "20px 40px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid #f1f5f9",
+      }}>
+        <div style={{ fontWeight: 800, fontSize: 17, color: "#0f172a" }}>AI Visibility Score</div>
+        <button onClick={() => router.push("/check")} style={{
+          padding: "10px 20px",
+          backgroundColor: "#0f172a",
+          color: "#fff",
+          border: "none",
+          borderRadius: 8,
+          fontWeight: 600,
+          fontSize: 14,
+          cursor: "pointer",
+        }}>
+          Check Your Score
+        </button>
+      </nav>
+
+      {/* Hero */}
+      <div style={{
+        maxWidth: 820,
+        margin: "0 auto",
+        padding: "100px 40px 80px",
+        textAlign: "center",
+      }}>
+        <div style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          backgroundColor: "#f1f5f9",
+          borderRadius: 99,
+          fontSize: 13,
+          fontWeight: 600,
+          color: "#64748b",
+          marginBottom: 28,
+          letterSpacing: "0.02em",
+        }}>
+          Free · Takes 2 minutes
+        </div>
+
+        <h1 style={{
+          fontSize: 54,
+          fontWeight: 800,
+          color: "#0f172a",
+          lineHeight: 1.1,
+          margin: "0 0 24px",
+          letterSpacing: "-0.02em",
+        }}>
+          When someone asks AI who<br />to hire — do you come up?
+        </h1>
+
+        <p style={{
+          fontSize: 19,
+          color: "#475569",
+          lineHeight: 1.7,
+          maxWidth: 560,
+          margin: "0 auto 40px",
+        }}>
+          ChatGPT, Claude, and Perplexity are now the first stop for finding businesses.
+          Find out how visible yours is — and exactly what to do about it.
+        </p>
+
+        <button onClick={() => router.push("/check")} style={ctaButton(true)}>
+          Check Your AI Visibility →
+        </button>
+
+        <div style={{ marginTop: 16, fontSize: 14, color: "#94a3b8" }}>
+          No account required · Results in under 30 seconds
+        </div>
+      </div>
+
+      {/* Problem Section */}
+      <div style={{ backgroundColor: "#f8fafc", padding: "80px 40px" }}>
+        <div style={{ maxWidth: 740, margin: "0 auto" }}>
+          <h2 style={{
+            fontSize: 38,
+            fontWeight: 800,
+            color: "#0f172a",
+            lineHeight: 1.15,
+            margin: "0 0 24px",
+            letterSpacing: "-0.01em",
+          }}>
+            SEO got you found on Google.<br />
+            AI doesn't work the same way.
+          </h2>
+          <p style={{ fontSize: 17, color: "#475569", lineHeight: 1.8, margin: "0 0 18px" }}>
+            Search engines crawl pages and rank links. AI systems learn from the entire web — and when
+            someone asks for a recommendation, they surface businesses they understand, trust, and can
+            describe clearly.
+          </p>
+          <p style={{ fontSize: 17, color: "#475569", lineHeight: 1.8, margin: 0 }}>
+            If your website doesn't clearly explain who you are, what you do, and who you serve —
+            in language AI can parse and repeat — you're invisible to a fast-growing source of new business.
+            Most businesses have no idea this gap exists.
           </p>
         </div>
-
-        {/* Input */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 40 }}>
-          <input
-            type="text"
-            placeholder="https://yourwebsite.com"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            style={{
-              flex: 1,
-              padding: "12px 16px",
-              fontSize: 16,
-              border: "1px solid #e2e8f0",
-              borderRadius: 8,
-              outline: "none",
-              backgroundColor: "#fff",
-            }}
-          />
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !url}
-            style={{
-              padding: "12px 24px",
-              fontSize: 16,
-              fontWeight: 600,
-              backgroundColor: loading || !url ? "#94a3b8" : "#0f172a",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              cursor: loading || !url ? "not-allowed" : "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {loading ? "Analyzing..." : "Analyze"}
-          </button>
-        </div>
-
-        {/* Loading */}
-        {loading && (
-          <div style={{ textAlign: "center", color: "#64748b", fontSize: 15 }}>
-            Scraping site and checking AI signals...
-          </div>
-        )}
-
-        {/* Results */}
-        {result && !result.error && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-            {/* Two Score Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-
-              {/* Web Signals Score */}
-              <div style={{
-                backgroundColor: scoreBackground(result.web_score),
-                border: `1px solid ${scoreBorder(result.web_score)}`,
-                borderRadius: 12,
-                padding: "24px 16px",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
-                  Web Signals
-                </div>
-                <div style={{ fontSize: 56, fontWeight: 800, color: scoreColor(result.web_score), lineHeight: 1 }}>
-                  {result.web_score}
-                </div>
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>out of 100</div>
-                <div style={{
-                  display: "inline-block",
-                  marginTop: 10,
-                  padding: "3px 12px",
-                  backgroundColor: scoreColor(result.web_score),
-                  color: "#fff",
-                  borderRadius: 99,
-                  fontSize: 13,
-                  fontWeight: 600,
-                }}>
-                  {result.web_label}
-                </div>
-              </div>
-
-              {/* AI Recognition Score */}
-              <div style={{
-                backgroundColor: scoreBackground(result.recognition_score),
-                border: `1px solid ${scoreBorder(result.recognition_score)}`,
-                borderRadius: 12,
-                padding: "24px 16px",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
-                  AI Recognition
-                </div>
-                <div style={{ fontSize: 56, fontWeight: 800, color: scoreColor(result.recognition_score), lineHeight: 1 }}>
-                  {result.recognition_score}
-                </div>
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>out of 100</div>
-                <div style={{
-                  display: "inline-block",
-                  marginTop: 10,
-                  padding: "3px 12px",
-                  backgroundColor: confidenceColor(result.confidence),
-                  color: "#fff",
-                  borderRadius: 99,
-                  fontSize: 13,
-                  fontWeight: 600,
-                }}>
-                  {result.confidence}
-                </div>
-              </div>
-
-            </div>
-
-            {/* What AI knows */}
-            <div style={{
-              backgroundColor: "#fff",
-              border: "1px solid #e2e8f0",
-              borderRadius: 12,
-              padding: 24,
-            }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px" }}>
-                What AI Already Knows
-              </h2>
-              {result.business_name && (
-                <div style={{ fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>{result.business_name}</div>
-              )}
-              <p style={{ margin: 0, color: "#334155", fontSize: 15, lineHeight: 1.7 }}>
-                {result.known_for}
-              </p>
-            </div>
-
-            {/* Web Summary */}
-            <div style={{
-              backgroundColor: "#fff",
-              border: "1px solid #e2e8f0",
-              borderRadius: 12,
-              padding: 24,
-            }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>
-                Website Signal Summary
-              </h2>
-              <p style={{ margin: 0, color: "#334155", fontSize: 15, lineHeight: 1.7 }}>
-                {result.explanation}
-              </p>
-            </div>
-
-            {/* Strengths */}
-            {result.strengths?.length > 0 && (
-              <div style={{
-                backgroundColor: "#fff",
-                border: "1px solid #e2e8f0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 12px" }}>
-                  What's Working
-                </h2>
-                <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
-                  {result.strengths.map((s, i) => (
-                    <li key={i} style={{ color: "#334155", fontSize: 15, lineHeight: 1.5 }}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Recommendations */}
-            {result.recommendations?.length > 0 && (
-              <div style={{
-                backgroundColor: "#fff",
-                border: "1px solid #e2e8f0",
-                borderRadius: 12,
-                padding: 24,
-              }}>
-                <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 12px" }}>
-                  Recommendations
-                </h2>
-                <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
-                  {result.recommendations.map((r, i) => (
-                    <li key={i} style={{ color: "#334155", fontSize: 15, lineHeight: 1.5 }}>{r}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {result?.error && (
-          <div style={{ color: "#ef4444", textAlign: "center" }}>
-            Something went wrong. Please try again.
-          </div>
-        )}
-
       </div>
+
+      {/* How it works */}
+      <div style={{ padding: "80px 40px" }}>
+        <div style={{ maxWidth: 740, margin: "0 auto" }}>
+          <h2 style={{
+            fontSize: 28,
+            fontWeight: 800,
+            color: "#0f172a",
+            margin: "0 0 48px",
+            textAlign: "center",
+            letterSpacing: "-0.01em",
+          }}>
+            How it works
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 40 }}>
+            {[
+              {
+                step: "01",
+                title: "Tell us about your business",
+                desc: "Share your website URL and a little context about what you do and who you serve.",
+              },
+              {
+                step: "02",
+                title: "We scan the signals AI looks for",
+                desc: "We check your site content, structure, schema markup, robots settings, and more.",
+              },
+              {
+                step: "03",
+                title: "Get your score + what to fix",
+                desc: "See how AI systems perceive your business today — and exactly what to improve.",
+              },
+            ].map(({ step, title, desc }) => (
+              <div key={step}>
+                <div style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#94a3b8",
+                  marginBottom: 12,
+                  letterSpacing: "0.08em",
+                }}>
+                  {step}
+                </div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>
+                  {title}
+                </h3>
+                <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.6, margin: 0 }}>
+                  {desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Repeat */}
+      <div style={{
+        backgroundColor: "#0f172a",
+        padding: "80px 40px",
+        textAlign: "center",
+      }}>
+        <h2 style={{
+          fontSize: 34,
+          fontWeight: 800,
+          color: "#fff",
+          margin: "0 0 16px",
+          letterSpacing: "-0.01em",
+        }}>
+          Free. Fast. No account needed.
+        </h2>
+        <p style={{ fontSize: 17, color: "#94a3b8", margin: "0 0 36px" }}>
+          Find out where you stand in under 30 seconds.
+        </p>
+        <button onClick={() => router.push("/check")} style={ctaButton(false)}>
+          Check Your AI Visibility →
+        </button>
+      </div>
+
     </div>
   );
 }
