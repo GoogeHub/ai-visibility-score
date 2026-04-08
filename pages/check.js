@@ -137,13 +137,45 @@ function LockedCard({ title, teaser, children }) {
 }
 
 function ResultsView({ result, formData, onReset }) {
-  const labelCfg = labelConfig[result.overall_label] || labelConfig.Emerging;
+  const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
+
+  const aiRecognitionContent = () => {
+    if (result.recognition_score === 0) {
+      return (
+        <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.8 }}>
+          <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
+            Score: 0 / 100 — Not in AI training data
+          </div>
+          <p style={{ margin: "0 0 12px" }}>
+            {displayName} doesn't appear in AI training data — and that's completely normal for the vast majority of businesses. AI models only "memorise" brands that appear repeatedly across the web in their training dataset: think Google, Atlassian, major law firms.
+          </p>
+          <p style={{ margin: 0 }}>
+            The good news: it doesn't stop AI from recommending you. Most AI tools people actually use — Perplexity, ChatGPT with browsing, Google AI Overviews — search the web in real time, not from memory. Your Web Signals score is what drives those recommendations. Training data recognition builds naturally as your online presence grows, and for most businesses, there's no shortcut needed — or available.
+          </p>
+        </div>
+      );
+    }
+    return (
+      <div>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 16, alignItems: "center", marginBottom: 14 }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 42, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{result.recognition_score}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>/ 100</div>
+          </div>
+          <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>
+            <div style={{ fontWeight: 600, color: "#0f172a", marginBottom: 4 }}>Confidence: {result.confidence}</div>
+            {result.known_for}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-      {/* Overall Score */}
+      {/* Main Score */}
       <div style={{
         backgroundColor: "#fff",
         border: "1px solid #e2e8f0",
@@ -155,11 +187,11 @@ function ResultsView({ result, formData, onReset }) {
           {displayName}
         </div>
         <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
-          {result.overall_score}
+          {result.web_score}
           <span style={{ fontSize: 32, fontWeight: 600, color: "#94a3b8" }}> / 100</span>
         </div>
 
-        <ScoreBar score={result.overall_score} />
+        <ScoreBar score={result.web_score} />
 
         <div style={{
           display: "inline-block",
@@ -171,7 +203,7 @@ function ResultsView({ result, formData, onReset }) {
           fontWeight: 700,
           fontSize: 15,
         }}>
-          {result.overall_label}
+          {result.web_label}
         </div>
 
         <p style={{
@@ -185,37 +217,6 @@ function ResultsView({ result, formData, onReset }) {
         </p>
       </div>
 
-      {/* Score Breakdown */}
-      <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
-          Score Breakdown
-        </div>
-        <SubScoreRow
-          label="Web Signals"
-          score={result.web_score}
-          description="How well your website is structured for AI to read and cite"
-        />
-        <SubScoreRow
-          label="AI Recognition"
-          score={result.recognition_score}
-          description="How well AI systems already know your business from training data"
-        />
-
-        {/* What AI knows */}
-        <div style={{
-          marginTop: 8,
-          padding: "14px 16px",
-          backgroundColor: "#f8fafc",
-          borderRadius: 8,
-          fontSize: 14,
-          color: "#475569",
-          lineHeight: 1.6,
-        }}>
-          <span style={{ fontWeight: 600, color: "#0f172a" }}>What AI currently knows: </span>
-          {result.known_for}
-        </div>
-      </div>
-
       {/* Locked sections */}
       <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", padding: "4px 0 0 2px" }}>
         Full Report
@@ -226,12 +227,12 @@ function ResultsView({ result, formData, onReset }) {
         teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
       >
         <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          {result.benchmark_note || `Most businesses in this industry score between 25–55 on AI visibility. ${displayName}'s score of ${result.overall_score} places them ${result.overall_score >= 50 ? "above" : "below"} the typical range.`}
+          {result.benchmark_note || `Most businesses in this industry score between 25–55 on AI visibility. ${displayName}'s score of ${result.web_score} places them ${result.web_score >= 50 ? "above" : "below"} the typical range.`}
         </div>
         <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Your Score</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{result.overall_score}</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{result.web_score}</div>
           </div>
           <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Industry Avg</div>
@@ -299,6 +300,13 @@ function ResultsView({ result, formData, onReset }) {
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>No content gaps detected.</div>
         )}
+      </LockedCard>
+
+      <LockedCard
+        title="AI Recognition"
+        teaser="Is your business already known by AI — and does it matter for you?"
+      >
+        {aiRecognitionContent()}
       </LockedCard>
 
       <LockedCard
