@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const baseUrl = new URL(url).origin;
     const bizContext = businessName ? `Business name: ${businessName}` : `Website: ${url}`;
     const indContext = industry ? `Industry: ${industry}` : "";
-    const goalContext = targetQuery ? `Their goal: Be recommended by AI when someone searches for "${targetQuery}"` : "";
+    const goalContext = targetQuery ? `Their goal: Be recommended by AI for searches related to "${targetQuery}" — interpret this charitably and broadly (it may contain typos or be loosely worded). Focus on the underlying intent and related search categories, not the literal string.` : "";
 
     // Run all fetches in parallel
     const [scrapeResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult, queryTestResult] = await Promise.allSettled([
@@ -67,15 +67,18 @@ Return ONLY valid JSON:
               temperature: 0,
               messages: [{
                 role: "user",
-                content: `If someone asked you: "${targetQuery}"
+                content: `A business wants to be recommended by AI for searches related to: "${targetQuery}"
 
-Based on your training data, would you recommend or mention "${businessName || url}" in your response? Be honest.
+Interpret this charitably — it may contain typos or be loosely worded. Understand the underlying intent (e.g. "websitea" likely means "website design" or "web agency"). Think broadly about the category of searches they're describing, not the literal string.
+
+Based on your training data, if someone asked you for recommendations in this space, would you mention "${businessName || url}"?
 
 Return ONLY valid JSON:
 {
+  "interpreted_intent": (1 short phrase capturing what you understood their goal to be, e.g. "web design agency in Melbourne"),
   "would_recommend": (true or false),
   "likelihood": ("Very likely", "Somewhat likely", "Unlikely", or "Very unlikely"),
-  "reason": (1 sentence explaining why or why not)
+  "reason": (1 sentence explaining why or why not, referencing the interpreted intent not the raw input)
 }`
               }]
             })

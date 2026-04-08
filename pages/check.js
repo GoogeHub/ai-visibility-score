@@ -252,6 +252,12 @@ function ResultsView({ result, formData, onReset }) {
       >
         {result.query_test ? (
           <div>
+            {result.query_test.interpreted_intent && (
+              <div style={{ marginBottom: 12, fontSize: 13, color: "#64748b" }}>
+                <span style={{ fontWeight: 600, color: "#0f172a" }}>Interpreted as: </span>
+                "{result.query_test.interpreted_intent}"
+              </div>
+            )}
             <div style={{
               display: "flex",
               alignItems: "center",
