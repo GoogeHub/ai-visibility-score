@@ -46,9 +46,13 @@ ${bizContext}
 ${indContext}
 Website: ${url}
 
-Return ONLY valid JSON:
+Return ONLY valid JSON. Important rules:
+- If you have no specific knowledge of this business, recognition_score MUST be 0 and confidence MUST be "Not recognised"
+- Do not give a non-zero score as a hedge — only score above 0 if you can actually describe what the business does from training data
+- The score and known_for text must be consistent with each other
+
 {
-  "recognition_score": (0-100, where 0 = completely unknown, 100 = universally recognised like Google or Apple),
+  "recognition_score": (0-100, where 0 = no specific knowledge, 100 = universally recognised like Google or Apple),
   "known_for": (1-2 sentences of what you know about them, or "Not found in AI training data" if unrecognised),
   "confidence": ("High", "Medium", "Low", or "Not recognised")
 }`
@@ -104,6 +108,10 @@ Return ONLY valid JSON:
       const raw = recognitionResult.value?.content?.[0]?.text || "{}";
       const clean = raw.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
       try { recognition = JSON.parse(clean); } catch {}
+    }
+    // Enforce consistency: if not recognised, score must be 0
+    if (recognition.confidence === "Not recognised" || recognition.known_for === "Not found in AI training data") {
+      recognition.recognition_score = 0;
     }
 
     // Parse target query test
