@@ -1,150 +1,194 @@
 export default async function handler(req, res) {
   try {
-    let { url } = req.body;
+    let { url, businessName, industry, targetQuery } = req.body;
 
-    if (!url) {
-      return res.status(400).json({ error: "No URL provided" });
-    }
-
-    if (!/^https?:\/\//i.test(url)) {
-      url = "https://" + url;
-    }
+    if (!url) return res.status(400).json({ error: "No URL provided" });
+    if (!/^https?:\/\//i.test(url)) url = "https://" + url;
 
     const baseUrl = new URL(url).origin;
+    const bizContext = businessName ? `Business name: ${businessName}` : `Website: ${url}`;
+    const indContext = industry ? `Industry: ${industry}` : "";
+    const goalContext = targetQuery ? `Their goal: Be recommended by AI when someone searches for "${targetQuery}"` : "";
 
-    // Fetch all web signals AND LLM recognition in parallel
-    const [scrapeResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult] = await Promise.allSettled([
+    // Run all fetches in parallel
+    const [scrapeResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult, queryTestResult] = await Promise.allSettled([
+
+      // Firecrawl scrape
       fetch("https://api.firecrawl.dev/v1/scrape", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.FIRECRAWL_API_KEY}`
-        },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.FIRECRAWL_API_KEY}` },
         body: JSON.stringify({ url, formats: ["markdown"] })
       }).then(r => r.json()),
 
+      // robots.txt
       fetch(`${baseUrl}/robots.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
+
+      // llms.txt
       fetch(`${baseUrl}/llms.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
 
-      // Fetch raw HTML directly for schema extraction (Firecrawl strips script tags)
+      // Raw HTML for schema extraction
       fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; AIVisibilityBot/1.0)" } })
         .then(r => r.ok ? r.text() : null).catch(() => null),
 
-      // Ask Claude what it already knows about this business from training data
+      // LLM recognition — now uses business name + industry for accuracy
       fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01"
-        },
+        headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 300,
           temperature: 0,
           messages: [{
             role: "user",
-            content: `Based purely on your training data — not by browsing — what do you know about the business at this URL: ${url}
+            content: `Based purely on your training data, what do you know about this business?
+
+${bizContext}
+${indContext}
+Website: ${url}
 
 Return ONLY valid JSON:
 {
-  "recognition_score": (number 0-100, where 0 = completely unknown to AI systems, 100 = universally recognized like Google or Apple),
-  "business_name": (the business name if you know it, null if not),
-  "known_for": (1-2 sentences summarising what you know about them, or "Not found in AI training data" if unrecognised),
-  "confidence": (one of: "High", "Medium", "Low", "Not recognised")
+  "recognition_score": (0-100, where 0 = completely unknown, 100 = universally recognised like Google or Apple),
+  "known_for": (1-2 sentences of what you know about them, or "Not found in AI training data" if unrecognised),
+  "confidence": ("High", "Medium", "Low", or "Not recognised")
 }`
           }]
         })
       }).then(r => r.json()),
+
+      // Target query test — only runs if targetQuery was provided
+      targetQuery
+        ? fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+            body: JSON.stringify({
+              model: "claude-haiku-4-5-20251001",
+              max_tokens: 300,
+              temperature: 0,
+              messages: [{
+                role: "user",
+                content: `If someone asked you: "${targetQuery}"
+
+Based on your training data, would you recommend or mention "${businessName || url}" in your response? Be honest.
+
+Return ONLY valid JSON:
+{
+  "would_recommend": (true or false),
+  "likelihood": ("Very likely", "Somewhat likely", "Unlikely", or "Very unlikely"),
+  "reason": (1 sentence explaining why or why not)
+}`
+              }]
+            })
+          }).then(r => r.json())
+        : Promise.resolve(null),
+
     ]);
 
-    // Parse web signals
+    // Parse results
     const scrapeData = scrapeResult.status === "fulfilled" ? scrapeResult.value : null;
-    const pageContent = scrapeData?.data?.markdown || "No website content could be retrieved.";
+    const pageContent = scrapeData?.data?.markdown || "No content retrieved.";
     const robotsTxt = robotsResult.status === "fulfilled" ? robotsResult.value : null;
     const llmsTxt = llmsResult.status === "fulfilled" ? llmsResult.value : null;
     const rawHtml = rawHtmlResult.status === "fulfilled" ? rawHtmlResult.value : "";
 
-    // Extract JSON-LD structured data from raw HTML
+    // Extract JSON-LD schema from raw HTML
     const schemaMatches = [...(rawHtml || "").matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
-    const schemaData = schemaMatches.map(m => {
-      try { return JSON.parse(m[1]); } catch { return null; }
-    }).filter(Boolean);
+    const schemaData = schemaMatches.map(m => { try { return JSON.parse(m[1]); } catch { return null; } }).filter(Boolean);
 
-    // Parse LLM recognition result
-    let recognition = {
-      recognition_score: 0,
-      business_name: null,
-      known_for: "Not found in AI training data",
-      confidence: "Not recognised"
-    };
+    // Parse recognition
+    let recognition = { recognition_score: 0, known_for: "Not found in AI training data", confidence: "Not recognised" };
     if (recognitionResult.status === "fulfilled") {
-      const rawRec = recognitionResult.value?.content?.[0]?.text || "{}";
-      const cleanRec = rawRec.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
-      try { recognition = JSON.parse(cleanRec); } catch {}
+      const raw = recognitionResult.value?.content?.[0]?.text || "{}";
+      const clean = raw.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
+      try { recognition = JSON.parse(clean); } catch {}
     }
 
-    // Web signals analysis
+    // Parse target query test
+    let queryTest = null;
+    if (queryTestResult.status === "fulfilled" && queryTestResult.value) {
+      const raw = queryTestResult.value?.content?.[0]?.text || "{}";
+      const clean = raw.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
+      try { queryTest = JSON.parse(clean); } catch {}
+    }
+
+    // Main analysis — uses all signals + business context
     const anthropicResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
+      headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 800,
+        max_tokens: 1200,
         temperature: 0,
         messages: [{
           role: "user",
-          content: `Analyze this website's signals for AI visibility — how well is it technically optimised for AI systems to find, understand, and cite it?
+          content: `Analyse this business's website for AI visibility.
 
-Website URL: ${url}
+${bizContext}
+${indContext}
+${goalContext}
 
 --- PAGE CONTENT ---
 ${pageContent.slice(0, 3000)}
 
---- STRUCTURED DATA (schema.org JSON-LD) ---
-${schemaData.length > 0 ? JSON.stringify(schemaData, null, 2).slice(0, 1000) : "None detected"}
+--- STRUCTURED DATA (schema.org) ---
+${schemaData.length > 0 ? JSON.stringify(schemaData).slice(0, 800) : "None detected"}
 
 --- ROBOTS.TXT ---
-${robotsTxt ? robotsTxt.slice(0, 600) : "Not found"}
+${robotsTxt ? robotsTxt.slice(0, 400) : "Not found"}
 
 --- LLMS.TXT ---
-${llmsTxt ? llmsTxt.slice(0, 600) : "Not present"}
+${llmsTxt ? llmsTxt.slice(0, 400) : "Not present"}
 
 Return ONLY valid JSON:
 {
-  "web_score": (number 0-100, based purely on website signals: content quality, schema markup, AI crawler access, llms.txt presence),
-  "web_label": (one of: "Poor", "Fair", "Good", "Excellent"),
-  "explanation": (2-3 sentences about the website's AI optimisation),
-  "strengths": [2-3 short strings of what the site does well],
-  "recommendations": [3-4 short actionable improvements for the website]
+  "web_score": (0-100, based on website signals: content quality, schema markup, AI crawler access, llms.txt),
+  "web_label": ("Poor", "Fair", "Good", or "Excellent"),
+  "explanation": (2-3 plain-English sentences summarising their AI visibility situation, referring to them by business name if known),
+  "content_gaps": [3-4 specific topics, language patterns, or information types that are missing from the site and that AI needs to understand and recommend them],
+  "priority_fixes": [
+    { "title": "short fix title", "impact": "High or Medium", "effort": "Low, Medium, or High", "detail": "one sentence on what to do" },
+    { "title": "...", "impact": "...", "effort": "...", "detail": "..." },
+    { "title": "...", "impact": "...", "effort": "...", "detail": "..." },
+    { "title": "...", "impact": "...", "effort": "...", "detail": "..." }
+  ],
+  "technical_issues": [2-3 specific technical findings about schema markup, robots.txt, llms.txt, or AI crawler access]
 }
 
-No extra text, just the JSON.`
+No extra text. Just the JSON.`
         }]
       })
     });
 
     const anthropicData = await anthropicResponse.json();
     const rawText = anthropicData?.content?.[0]?.text || "{}";
-    const text = rawText.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
+    const cleanText = rawText.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
 
-    let webAnalysis;
-    try {
-      webAnalysis = JSON.parse(text);
-    } catch {
-      return res.status(500).json({ error: "Failed to parse AI response" });
-    }
+    let analysis;
+    try { analysis = JSON.parse(cleanText); }
+    catch { return res.status(500).json({ error: "Failed to parse AI response" }); }
+
+    const overall_score = Math.round((analysis.web_score + recognition.recognition_score) / 2);
+    const overall_label =
+      overall_score >= 75 ? "Strong" :
+      overall_score >= 50 ? "Visible" :
+      overall_score >= 25 ? "Emerging" : "Invisible";
 
     res.status(200).json({
-      ...webAnalysis,
+      overall_score,
+      overall_label,
+      web_score: analysis.web_score,
+      web_label: analysis.web_label,
       recognition_score: recognition.recognition_score,
-      business_name: recognition.business_name,
-      known_for: recognition.known_for,
       confidence: recognition.confidence,
+      known_for: recognition.known_for,
+      explanation: analysis.explanation,
+      content_gaps: analysis.content_gaps || [],
+      priority_fixes: analysis.priority_fixes || [],
+      technical_issues: analysis.technical_issues || [],
+      query_test: queryTest,
+      business_name: businessName || null,
+      industry: industry || null,
+      target_query: targetQuery || null,
     });
 
   } catch (error) {

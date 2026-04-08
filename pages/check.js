@@ -13,148 +13,251 @@ const inputStyle = {
   color: "#0f172a",
 };
 
-const scoreColor = (score) => {
-  if (score >= 71) return "#22c55e";
-  if (score >= 41) return "#f59e0b";
-  return "#ef4444";
+const labelConfig = {
+  Strong:    { color: "#16a34a", bg: "#f0fdf4" },
+  Visible:   { color: "#2563eb", bg: "#eff6ff" },
+  Emerging:  { color: "#d97706", bg: "#fffbeb" },
+  Invisible: { color: "#dc2626", bg: "#fef2f2" },
 };
 
-const scoreBackground = (score) => {
-  if (score >= 71) return "#f0fdf4";
-  if (score >= 41) return "#fffbeb";
-  return "#fef2f2";
+const subScoreColor = (score) => {
+  if (score >= 71) return "#16a34a";
+  if (score >= 41) return "#d97706";
+  return "#dc2626";
 };
 
-const scoreBorder = (score) => {
-  if (score >= 71) return "#bbf7d0";
-  if (score >= 41) return "#fde68a";
-  return "#fecaca";
-};
+function ScoreBar({ score }) {
+  return (
+    <div style={{ position: "relative", margin: "20px 0 8px" }}>
+      <div style={{
+        height: 12,
+        borderRadius: 99,
+        background: "linear-gradient(to right, #dc2626, #f59e0b, #16a34a)",
+      }} />
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: `${Math.min(Math.max(score, 2), 98)}%`,
+        transform: "translate(-50%, -50%)",
+        width: 20,
+        height: 20,
+        borderRadius: "50%",
+        backgroundColor: "#fff",
+        border: "3px solid #0f172a",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+      }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "#94a3b8" }}>
+        <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+      </div>
+    </div>
+  );
+}
 
-const confidenceColor = (confidence) => {
-  if (confidence === "High") return "#22c55e";
-  if (confidence === "Medium") return "#f59e0b";
-  if (confidence === "Low") return "#ef4444";
-  return "#94a3b8";
-};
+function SubScoreRow({ label, score, description }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ fontWeight: 600, fontSize: 15, color: "#0f172a" }}>{label}</span>
+        <span style={{ fontWeight: 700, fontSize: 15, color: subScoreColor(score) }}>{score} / 100</span>
+      </div>
+      <div style={{ height: 6, borderRadius: 99, backgroundColor: "#f1f5f9", overflow: "hidden" }}>
+        <div style={{
+          height: "100%",
+          width: `${score}%`,
+          borderRadius: 99,
+          background: `linear-gradient(to right, #f59e0b, ${subScoreColor(score)})`,
+          transition: "width 0.6s ease",
+        }} />
+      </div>
+      {description && <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{description}</div>}
+    </div>
+  );
+}
 
-function ResultsView({ result, onReset }) {
+function LockedCard({ title, teaser, icon }) {
+  return (
+    <div style={{
+      backgroundColor: "#fff",
+      border: "1px solid #e2e8f0",
+      borderRadius: 12,
+      padding: "20px 20px 16px",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>{title}</div>
+          <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>{teaser}</div>
+        </div>
+        <span style={{ fontSize: 20, marginLeft: 12, flexShrink: 0 }}>🔒</span>
+      </div>
+      {/* Fake blurred rows */}
+      <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+        {[80, 60, 45].map((w, i) => (
+          <div key={i} style={{
+            height: 10,
+            width: `${w}%`,
+            borderRadius: 99,
+            backgroundColor: "#f1f5f9",
+          }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResultsView({ result, formData, onReset }) {
+  const labelCfg = labelConfig[result.overall_label] || labelConfig.Emerging;
+  const displayName = formData.businessName || result.business_name || "Your business";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-      {/* Two Score Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-
-        <div style={{
-          backgroundColor: scoreBackground(result.web_score),
-          border: `1px solid ${scoreBorder(result.web_score)}`,
-          borderRadius: 12,
-          padding: "24px 16px",
-          textAlign: "center",
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
-            Web Signals
-          </div>
-          <div style={{ fontSize: 56, fontWeight: 800, color: scoreColor(result.web_score), lineHeight: 1 }}>
-            {result.web_score}
-          </div>
-          <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>out of 100</div>
-          <div style={{
-            display: "inline-block",
-            marginTop: 10,
-            padding: "3px 12px",
-            backgroundColor: scoreColor(result.web_score),
-            color: "#fff",
-            borderRadius: 99,
-            fontSize: 13,
-            fontWeight: 600,
-          }}>
-            {result.web_label}
-          </div>
+      {/* Overall Score */}
+      <div style={{
+        backgroundColor: "#fff",
+        border: "1px solid #e2e8f0",
+        borderRadius: 16,
+        padding: "32px 24px 24px",
+        textAlign: "center",
+      }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>
+          {displayName}
+        </div>
+        <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
+          {result.overall_score}
+          <span style={{ fontSize: 32, fontWeight: 600, color: "#94a3b8" }}> / 100</span>
         </div>
 
+        <ScoreBar score={result.overall_score} />
+
         <div style={{
-          backgroundColor: scoreBackground(result.recognition_score),
-          border: `1px solid ${scoreBorder(result.recognition_score)}`,
-          borderRadius: 12,
-          padding: "24px 16px",
-          textAlign: "center",
+          display: "inline-block",
+          marginTop: 12,
+          padding: "6px 20px",
+          backgroundColor: labelCfg.bg,
+          color: labelCfg.color,
+          borderRadius: 99,
+          fontWeight: 700,
+          fontSize: 15,
         }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
-            AI Recognition
-          </div>
-          <div style={{ fontSize: 56, fontWeight: 800, color: scoreColor(result.recognition_score), lineHeight: 1 }}>
-            {result.recognition_score}
-          </div>
-          <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>out of 100</div>
-          <div style={{
-            display: "inline-block",
-            marginTop: 10,
-            padding: "3px 12px",
-            backgroundColor: confidenceColor(result.confidence),
-            color: "#fff",
-            borderRadius: 99,
-            fontSize: 13,
-            fontWeight: 600,
-          }}>
-            {result.confidence}
-          </div>
+          {result.overall_label}
         </div>
 
+        <p style={{
+          fontSize: 15,
+          color: "#475569",
+          lineHeight: 1.7,
+          margin: "16px 0 0",
+          textAlign: "left",
+        }}>
+          {result.explanation}
+        </p>
       </div>
 
-      {/* What AI Knows */}
+      {/* Score Breakdown */}
       <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24 }}>
-        <h2 style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px" }}>
-          What AI Already Knows
-        </h2>
-        {result.business_name && (
-          <div style={{ fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>{result.business_name}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20 }}>
+          Score Breakdown
+        </div>
+        <SubScoreRow
+          label="Web Signals"
+          score={result.web_score}
+          description="How well your website is structured for AI to read and cite"
+        />
+        <SubScoreRow
+          label="AI Recognition"
+          score={result.recognition_score}
+          description="How well AI systems already know your business from training data"
+        />
+
+        {/* What AI knows */}
+        <div style={{
+          marginTop: 8,
+          padding: "14px 16px",
+          backgroundColor: "#f8fafc",
+          borderRadius: 8,
+          fontSize: 14,
+          color: "#475569",
+          lineHeight: 1.6,
+        }}>
+          <span style={{ fontWeight: 600, color: "#0f172a" }}>What AI currently knows: </span>
+          {result.known_for}
+        </div>
+      </div>
+
+      {/* Locked sections */}
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", padding: "4px 0 0 2px" }}>
+        Full Report
+      </div>
+
+      <LockedCard
+        title="Industry Benchmark"
+        teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
+      />
+
+      <LockedCard
+        title="Target Query Test"
+        teaser={
+          formData.targetQuery
+            ? `Does AI recommend you when someone searches for "${formData.targetQuery}"?`
+            : "Does AI recommend you for the searches that matter most to your business?"
+        }
+      />
+
+      <LockedCard
+        title="Content Gap Analysis"
+        teaser="The specific language and topics AI is missing from your site — and exactly how to add them."
+      />
+
+      <LockedCard
+        title="Priority Fix List"
+        teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
+      />
+
+      {/* Unlock CTA */}
+      <div style={{
+        backgroundColor: "#0f172a",
+        borderRadius: 16,
+        padding: "28px 24px",
+        textAlign: "center",
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          Unlock Full Report
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>
+          $49
+        </div>
+        <p style={{ fontSize: 14, color: "#94a3b8", margin: "0 0 20px", lineHeight: 1.6 }}>
+          Industry benchmark · Target query test · Content gaps · Priority fixes
+        </p>
+        <button
+          onClick={() => alert("Payment coming soon! We'll be in touch.")}
+          style={{
+            width: "100%",
+            padding: "16px",
+            backgroundColor: "#fff",
+            color: "#0f172a",
+            border: "none",
+            borderRadius: 10,
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          🔓 Unlock Full Report — $49
+        </button>
+        {formData.email && (
+          <div style={{ marginTop: 12, fontSize: 12, color: "#64748b" }}>
+            Report will be sent to {formData.email}
+          </div>
         )}
-        <p style={{ margin: 0, color: "#334155", fontSize: 15, lineHeight: 1.7 }}>{result.known_for}</p>
       </div>
 
-      {/* Website Signal Summary */}
-      <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24 }}>
-        <h2 style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 10px" }}>
-          Website Signal Summary
-        </h2>
-        <p style={{ margin: 0, color: "#334155", fontSize: 15, lineHeight: 1.7 }}>{result.explanation}</p>
-      </div>
-
-      {/* Strengths */}
-      {result.strengths?.length > 0 && (
-        <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24 }}>
-          <h2 style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 12px" }}>
-            What's Working
-          </h2>
-          <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
-            {result.strengths.map((s, i) => (
-              <li key={i} style={{ color: "#334155", fontSize: 15, lineHeight: 1.5 }}>{s}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Recommendations */}
-      {result.recommendations?.length > 0 && (
-        <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24 }}>
-          <h2 style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 12px" }}>
-            Recommendations
-          </h2>
-          <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
-            {result.recommendations.map((r, i) => (
-              <li key={i} style={{ color: "#334155", fontSize: 15, lineHeight: 1.5 }}>{r}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Run Another */}
+      {/* Run another */}
       <button
         onClick={onReset}
         style={{
-          marginTop: 8,
           padding: "14px",
           backgroundColor: "#f1f5f9",
           color: "#0f172a",
@@ -198,7 +301,12 @@ export default function Check() {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: form.url }),
+        body: JSON.stringify({
+          url: form.url,
+          businessName: form.businessName,
+          industry: form.industry,
+          targetQuery: form.targetQuery,
+        }),
       });
       const data = await res.json();
       if (data.error) {
@@ -242,18 +350,12 @@ export default function Check() {
         </button>
       </nav>
 
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "60px 24px" }}>
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "60px 24px 80px" }}>
 
         {!result ? (
           <>
             <div style={{ marginBottom: 40 }}>
-              <h1 style={{
-                fontSize: 32,
-                fontWeight: 800,
-                color: "#0f172a",
-                margin: "0 0 8px",
-                letterSpacing: "-0.01em",
-              }}>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", letterSpacing: "-0.01em" }}>
                 Check your AI Visibility
               </h1>
               <p style={{ color: "#64748b", fontSize: 16, margin: 0, lineHeight: 1.6 }}>
@@ -271,7 +373,6 @@ export default function Check() {
               gap: 24,
             }}>
 
-              {/* Business Name */}
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
                   Business Name
@@ -285,7 +386,6 @@ export default function Check() {
                 />
               </div>
 
-              {/* Website URL */}
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
                   Website URL <span style={{ color: "#ef4444" }}>*</span>
@@ -300,7 +400,6 @@ export default function Check() {
                 />
               </div>
 
-              {/* Industry */}
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
                   Industry
@@ -314,7 +413,6 @@ export default function Check() {
                 />
               </div>
 
-              {/* Target Query */}
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 4, fontSize: 15 }}>
                   What do you want AI to recommend you for?
@@ -331,7 +429,6 @@ export default function Check() {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
                   Email{" "}
@@ -346,10 +443,8 @@ export default function Check() {
                 />
               </div>
 
-              {/* Divider */}
               <div style={{ borderTop: "1px solid #f1f5f9" }} />
 
-              {/* Submit */}
               <div>
                 <button
                   onClick={handleSubmit}
@@ -385,7 +480,7 @@ export default function Check() {
             </div>
           </>
         ) : (
-          <ResultsView result={result} onReset={handleReset} />
+          <ResultsView result={result} formData={form} onReset={handleReset} />
         )}
 
       </div>
