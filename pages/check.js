@@ -246,48 +246,65 @@ function ResultsView({ result, formData, onReset }) {
       <LockedCard
         title="Target Query Test"
         teaser={
-          formData.targetQuery
-            ? `Does AI recommend you when someone searches for "${formData.targetQuery}"?`
+          formData.targetQueries?.filter(Boolean).length > 0
+            ? `Does AI recommend you for the ${formData.targetQueries.filter(Boolean).length} search${formData.targetQueries.filter(Boolean).length > 1 ? "es" : ""} you care about?`
             : "Does AI recommend you for the searches that matter most to your business?"
         }
       >
-        {result.query_test ? (
-          <div>
-            {result.query_test.interpreted_intent && (
-              <div style={{ marginBottom: 12, fontSize: 13, color: "#64748b" }}>
-                <span style={{ fontWeight: 600, color: "#0f172a" }}>Interpreted as: </span>
-                "{result.query_test.interpreted_intent}"
-              </div>
-            )}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 14,
-              padding: "12px 14px",
-              backgroundColor: result.query_test.would_recommend ? "#f0fdf4" : "#fef2f2",
-              borderRadius: 8,
-            }}>
-              <span style={{ fontSize: 22 }}>{result.query_test.would_recommend ? "✅" : "❌"}</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>{result.query_test.likelihood}</div>
-                <div style={{ fontSize: 13, color: "#64748b" }}>
-                  {result.query_test.would_recommend ? "AI would recommend you" : "AI would not recommend you"} based on your website content
+        {result.query_groups?.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {result.query_groups.map((group, i) => (
+              <div key={i}>
+                {result.query_groups.length > 1 && (
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                    Query {i + 1} of {result.query_groups.length}
+                  </div>
+                )}
+                {/* Intent label */}
+                <div style={{ marginBottom: 10, fontSize: 13, color: "#64748b" }}>
+                  <span style={{ fontWeight: 600, color: "#0f172a" }}>Intent: </span>
+                  "{group.intent}"
+                  {group.queries?.length > 1 && (
+                    <span style={{ marginLeft: 6, color: "#94a3b8" }}>
+                      (merged {group.queries.length} similar queries)
+                    </span>
+                  )}
                 </div>
+                {/* Result */}
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 10,
+                  padding: "12px 14px",
+                  backgroundColor: group.would_recommend ? "#f0fdf4" : "#fef2f2",
+                  borderRadius: 8,
+                }}>
+                  <span style={{ fontSize: 20 }}>{group.would_recommend ? "✅" : "❌"}</span>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>{group.likelihood}</div>
+                    <div style={{ fontSize: 13, color: "#64748b" }}>
+                      {group.would_recommend ? "AI would recommend you" : "AI would not recommend you"} based on your website content
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: group.content_fix ? 10 : 0 }}>
+                  <strong>Why:</strong> {group.reason}
+                </div>
+                {group.content_fix && (
+                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, padding: "10px 14px", backgroundColor: "#fffbeb", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
+                    <strong>Quick fix:</strong> {group.content_fix}
+                  </div>
+                )}
+                {i < result.query_groups.length - 1 && (
+                  <div style={{ borderTop: "1px solid #f1f5f9", marginTop: 20 }} />
+                )}
               </div>
-            </div>
-            <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: result.query_test.content_fix ? 10 : 0 }}>
-              <strong>Why:</strong> {result.query_test.reason}
-            </div>
-            {result.query_test.content_fix && (
-              <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, padding: "10px 14px", backgroundColor: "#fffbeb", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
-                <strong>Quick fix:</strong> {result.query_test.content_fix}
-              </div>
-            )}
+            ))}
           </div>
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>
-            No target query was provided. Add one to the form to see this test.
+            No queries were provided. Add up to 3 target searches in the form to see this test.
           </div>
         )}
       </LockedCard>
@@ -411,7 +428,7 @@ export default function Check() {
     businessName: "",
     url: "",
     industry: "",
-    targetQuery: "",
+    targetQueries: ["", "", ""],
     email: "",
   });
   const [result, setResult] = useState(null);
@@ -435,7 +452,7 @@ export default function Check() {
           url: form.url,
           businessName: form.businessName,
           industry: form.industry,
-          targetQuery: form.targetQuery,
+          targetQueries: form.targetQueries,
         }),
       });
       const data = await res.json();
@@ -453,7 +470,7 @@ export default function Check() {
 
   function handleReset() {
     setResult(null);
-    setForm({ businessName: "", url: "", industry: "", targetQuery: "", email: "" });
+    setForm({ businessName: "", url: "", industry: "", targetQueries: ["", "", ""], email: "" });
   }
 
   return (
@@ -547,16 +564,27 @@ export default function Check() {
                 <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 4, fontSize: 15 }}>
                   What do you want AI to recommend you for?
                 </label>
-                <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 8px", lineHeight: 1.5 }}>
-                  e.g. "Brand strategy agency in Melbourne" or "Commercial lawyer in Sydney"
+                <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>
+                  Add up to 3 searches your ideal customers might use. e.g. "Brand agency in Melbourne" or "Arts sector web design".
                 </p>
-                <input
-                  type="text"
-                  placeholder="Your ideal AI recommendation..."
-                  value={form.targetQuery}
-                  onChange={(e) => updateForm("targetQuery", e.target.value)}
-                  style={inputStyle}
-                />
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {form.targetQueries.map((q, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", width: 16, flexShrink: 0 }}>{i + 1}</span>
+                      <input
+                        type="text"
+                        placeholder={i === 0 ? "e.g. Brand strategy agency in Melbourne" : i === 1 ? "e.g. Arts sector web design" : "Optional third query"}
+                        value={q}
+                        onChange={(e) => {
+                          const updated = [...form.targetQueries];
+                          updated[i] = e.target.value;
+                          updateForm("targetQueries", updated);
+                        }}
+                        style={inputStyle}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>

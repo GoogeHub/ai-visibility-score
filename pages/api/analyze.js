@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    let { url, businessName, industry, targetQuery } = req.body;
+    let { url, businessName, industry, targetQueries } = req.body;
 
     if (!url) return res.status(400).json({ error: "No URL provided" });
     if (!/^https?:\/\//i.test(url)) url = "https://" + url;
@@ -8,7 +8,12 @@ export default async function handler(req, res) {
     const baseUrl = new URL(url).origin;
     const bizContext = businessName ? `Business name: ${businessName}` : `Website: ${url}`;
     const indContext = industry ? `Industry: ${industry}` : "";
-    const goalContext = targetQuery ? `Their goal: Be recommended by AI for searches related to "${targetQuery}" — interpret this charitably and broadly (it may contain typos or be loosely worded). Focus on the underlying intent and related search categories, not the literal string.` : "";
+    const queries = Array.isArray(targetQueries)
+      ? targetQueries.map(q => q?.trim()).filter(Boolean)
+      : [];
+    const goalContext = queries.length > 0
+      ? `Their goal: Be recommended by AI for searches related to: ${queries.map(q => `"${q}"`).join(", ")} — interpret these charitably and broadly. Focus on underlying intent.`
+      : "";
 
     // ─── PHASE 1: Fetch all web signals + recognition in parallel ───────────
     const [scrapeResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult] = await Promise.allSettled([
@@ -130,22 +135,18 @@ No extra text. Just the JSON.`
         })
       }).then(r => r.json()),
 
-      // Query test — now uses actual page content, not training data
-      targetQuery
+      // Query group test — clusters similar queries by intent, then tests each distinct group
+      queries.length > 0
         ? fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
             body: JSON.stringify({
               model: "claude-haiku-4-5-20251001",
-              max_tokens: 400,
+              max_tokens: 800,
               temperature: 0,
               messages: [{
                 role: "user",
-                content: `Someone searched an AI tool for: "${targetQuery}"
-
-Interpret this charitably — it may contain typos or be loosely worded. Understand the underlying intent and think about the broader category of searches they're describing.
-
-An AI tool with web search (like Perplexity or ChatGPT with browsing) found the following website. Based purely on how well this website's content matches the search intent — NOT training data — would it recommend this business?
+                content: `You are analysing a website to see if an AI-powered web search tool would recommend it for various searches.
 
 ${bizContext}
 ${indContext}
@@ -153,15 +154,27 @@ ${indContext}
 --- WEBSITE CONTENT ---
 ${pageContent.slice(0, 2000)}
 
-Assess: does this website clearly demonstrate that this business does what the searcher is looking for? Is the relevant expertise, location, service, or specialisation evident from the content?
+---
+
+The business wants to be found for these searches:
+${queries.map((q, i) => `${i + 1}. "${q}"`).join("\n")}
+
+Step 1 — Group by intent: Identify which queries represent meaningfully DIFFERENT search intents vs. essentially the same intent worded differently. Queries that are semantically the same (e.g. "build my website" and "develop my company website") should be merged into one group. Each distinct intent becomes its own group. Interpret each query charitably — typos or loose wording should be understood by intent.
+
+Step 2 — For each distinct intent group: assess whether an AI web search tool that found this website would recommend this business for that type of search. Base this purely on the website content above — not training data.
 
 Return ONLY valid JSON:
 {
-  "interpreted_intent": (1 short phrase — what you understood the search goal to be, e.g. "digital agency in Melbourne specialising in arts sector websites"),
-  "would_recommend": (true or false),
-  "likelihood": ("Very likely", "Somewhat likely", "Unlikely", or "Very unlikely"),
-  "reason": (1-2 sentences explaining why or why not, based on what is or isn't in the website content),
-  "content_fix": (1 sentence on the single most impactful content change that would improve this result — only if would_recommend is false)
+  "query_groups": [
+    {
+      "intent": (short plain-English phrase describing this group's search intent),
+      "queries": [array of the original query strings belonging to this group],
+      "would_recommend": (true or false),
+      "likelihood": ("Very likely", "Somewhat likely", "Unlikely", or "Very unlikely"),
+      "reason": (1-2 sentences based on what is or isn't evident in the website content),
+      "content_fix": (single most impactful content change to improve this result — only include if would_recommend is false, otherwise null)
+    }
+  ]
 }`
               }]
             })
@@ -179,11 +192,11 @@ Return ONLY valid JSON:
     try { analysis = JSON.parse(cleanText); }
     catch { return res.status(500).json({ error: "Failed to parse AI response" }); }
 
-    let queryTest = null;
+    let queryGroups = [];
     if (queryTestResult.status === "fulfilled" && queryTestResult.value) {
       const raw = queryTestResult.value?.content?.[0]?.text || "{}";
       const clean = raw.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
-      try { queryTest = JSON.parse(clean); } catch {}
+      try { queryGroups = JSON.parse(clean)?.query_groups || []; } catch {}
     }
 
     res.status(200).json({
@@ -198,10 +211,9 @@ Return ONLY valid JSON:
       technical_issues: analysis.technical_issues || [],
       benchmark_note: analysis.benchmark_note || null,
       benchmark_avg: analysis.benchmark_avg || null,
-      query_test: queryTest,
+      query_groups: queryGroups,
       business_name: businessName || null,
       industry: industry || null,
-      target_query: targetQuery || null,
     });
 
   } catch (error) {
