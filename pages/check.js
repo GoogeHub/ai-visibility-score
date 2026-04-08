@@ -235,7 +235,9 @@ function ResultsView({ result, formData, onReset }) {
           </div>
           <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Industry Avg</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: "#94a3b8", marginTop: 2 }}>~38</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#94a3b8", marginTop: 2 }}>
+              {result.benchmark_avg ? `~${result.benchmark_avg}` : "—"}
+            </div>
           </div>
         </div>
       </LockedCard>

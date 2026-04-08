@@ -152,7 +152,8 @@ Return ONLY valid JSON:
     { "title": "...", "impact": "...", "effort": "...", "detail": "..." }
   ],
   "technical_issues": [2-3 specific technical findings about schema markup, robots.txt, llms.txt, or AI crawler access],
-  "benchmark_note": (1 sentence estimating how this score compares to typical businesses in their industry, e.g. "Most branding agencies score between 30–50 on AI visibility, placing this business in the lower end of the range.")
+  "benchmark_note": (1 sentence estimating how this score compares to typical businesses in their industry. Must be consistent with benchmark_avg. e.g. "Most branding agencies score around 35 on AI visibility, placing this business slightly above average."),
+  "benchmark_avg": (a single estimated average score number 0-100 for their industry — must match what you say in benchmark_note)
 }
 
 No extra text. Just the JSON.`
@@ -187,6 +188,7 @@ No extra text. Just the JSON.`
       priority_fixes: analysis.priority_fixes || [],
       technical_issues: analysis.technical_issues || [],
       benchmark_note: analysis.benchmark_note || null,
+      benchmark_avg: analysis.benchmark_avg || null,
       query_test: queryTest,
       business_name: businessName || null,
       industry: industry || null,
