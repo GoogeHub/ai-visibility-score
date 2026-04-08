@@ -32,11 +32,11 @@ function ScoreBar({ score }) {
       <div style={{
         height: 12,
         borderRadius: 99,
-        background: "linear-gradient(to right, #dc2626, #f59e0b, #16a34a)",
+        background: "linear-gradient(to right, #1e3a8a, #d946ef)",
       }} />
       <div style={{
         position: "absolute",
-        top: "50%",
+        top: 6,
         left: `${Math.min(Math.max(score, 2), 98)}%`,
         transform: "translate(-50%, -50%)",
         width: 20,
@@ -65,7 +65,7 @@ function SubScoreRow({ label, score, description }) {
           height: "100%",
           width: `${score}%`,
           borderRadius: 99,
-          background: `linear-gradient(to right, #f59e0b, ${subScoreColor(score)})`,
+          background: "linear-gradient(to right, #1e3a8a, #d946ef)",
           transition: "width 0.6s ease",
         }} />
       </div>
@@ -74,34 +74,64 @@ function SubScoreRow({ label, score, description }) {
   );
 }
 
-function LockedCard({ title, teaser, icon }) {
+function LockedCard({ title, teaser, children }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div style={{
       backgroundColor: "#fff",
-      border: "1px solid #e2e8f0",
+      border: `1px solid ${open ? "#d946ef" : "#e2e8f0"}`,
       borderRadius: 12,
-      padding: "20px 20px 16px",
-      position: "relative",
       overflow: "hidden",
+      transition: "border-color 0.2s",
     }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+      {/* Header — always visible, clickable */}
+      <div
+        onClick={() => setOpen(!open)}
+        style={{
+          padding: "20px 20px 16px",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
         <div>
           <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>{title}</div>
           <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>{teaser}</div>
         </div>
-        <span style={{ fontSize: 20, marginLeft: 12, flexShrink: 0 }}>🔒</span>
+        <span style={{ fontSize: 18, marginLeft: 12, flexShrink: 0 }}>
+          {open ? "🔓" : "🔒"}
+        </span>
       </div>
-      {/* Fake blurred rows */}
-      <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[80, 60, 45].map((w, i) => (
-          <div key={i} style={{
-            height: 10,
-            width: `${w}%`,
-            borderRadius: 99,
-            backgroundColor: "#f1f5f9",
-          }} />
-        ))}
-      </div>
+
+      {/* Revealed content */}
+      {open ? (
+        <div style={{ padding: "0 20px 20px", borderTop: "1px solid #f1f5f9" }}>
+          <div style={{
+            marginTop: 14,
+            padding: "10px 12px",
+            backgroundColor: "#fdf4ff",
+            borderRadius: 8,
+            fontSize: 11,
+            fontWeight: 600,
+            color: "#a21caf",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            marginBottom: 14,
+          }}>
+            Demo preview — this is what unlocking reveals
+          </div>
+          {children}
+        </div>
+      ) : (
+        /* Fake placeholder rows */
+        <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+          {[80, 60, 45].map((w, i) => (
+            <div key={i} style={{ height: 10, width: `${w}%`, borderRadius: 99, backgroundColor: "#f1f5f9" }} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -194,7 +224,21 @@ function ResultsView({ result, formData, onReset }) {
       <LockedCard
         title="Industry Benchmark"
         teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
-      />
+      >
+        <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
+          {result.benchmark_note || `Most businesses in this industry score between 25–55 on AI visibility. ${displayName}'s score of ${result.overall_score} places them ${result.overall_score >= 50 ? "above" : "below"} the typical range.`}
+        </div>
+        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Your Score</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>{result.overall_score}</div>
+          </div>
+          <div style={{ backgroundColor: "#f8fafc", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Industry Avg</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#94a3b8", marginTop: 2 }}>~38</div>
+          </div>
+        </div>
+      </LockedCard>
 
       <LockedCard
         title="Target Query Test"
@@ -203,17 +247,82 @@ function ResultsView({ result, formData, onReset }) {
             ? `Does AI recommend you when someone searches for "${formData.targetQuery}"?`
             : "Does AI recommend you for the searches that matter most to your business?"
         }
-      />
+      >
+        {result.query_test ? (
+          <div>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 14,
+              padding: "12px 14px",
+              backgroundColor: result.query_test.would_recommend ? "#f0fdf4" : "#fef2f2",
+              borderRadius: 8,
+            }}>
+              <span style={{ fontSize: 22 }}>{result.query_test.would_recommend ? "✅" : "❌"}</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>{result.query_test.likelihood}</div>
+                <div style={{ fontSize: 13, color: "#64748b" }}>
+                  {result.query_test.would_recommend ? "AI would recommend you" : "AI would not recommend you"} for this query
+                </div>
+              </div>
+            </div>
+            <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
+              <strong>Why:</strong> {result.query_test.reason}
+            </div>
+          </div>
+        ) : (
+          <div style={{ fontSize: 14, color: "#64748b" }}>
+            No target query was provided. Add one to the form to see this test.
+          </div>
+        )}
+      </LockedCard>
 
       <LockedCard
         title="Content Gap Analysis"
         teaser="The specific language and topics AI is missing from your site — and exactly how to add them."
-      />
+      >
+        {result.content_gaps?.length > 0 ? (
+          <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+            {result.content_gaps.map((gap, i) => (
+              <li key={i} style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{gap}</li>
+            ))}
+          </ul>
+        ) : (
+          <div style={{ fontSize: 14, color: "#64748b" }}>No content gaps detected.</div>
+        )}
+      </LockedCard>
 
       <LockedCard
         title="Priority Fix List"
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
-      />
+      >
+        {result.priority_fixes?.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {result.priority_fixes.map((fix, i) => (
+              <div key={i} style={{ padding: "12px 14px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{fix.title}</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99,
+                      backgroundColor: fix.impact === "High" ? "#fef2f2" : "#fffbeb",
+                      color: fix.impact === "High" ? "#dc2626" : "#d97706",
+                    }}>{fix.impact} impact</span>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99,
+                      backgroundColor: "#f1f5f9", color: "#64748b",
+                    }}>{fix.effort} effort</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.5 }}>{fix.detail}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: 14, color: "#64748b" }}>No fixes available.</div>
+        )}
+      </LockedCard>
 
       {/* Unlock CTA */}
       <div style={{
