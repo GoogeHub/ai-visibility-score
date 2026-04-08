@@ -272,13 +272,18 @@ function ResultsView({ result, formData, onReset }) {
               <div>
                 <div style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>{result.query_test.likelihood}</div>
                 <div style={{ fontSize: 13, color: "#64748b" }}>
-                  {result.query_test.would_recommend ? "AI would recommend you" : "AI would not recommend you"} for this query
+                  {result.query_test.would_recommend ? "AI would recommend you" : "AI would not recommend you"} based on your website content
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
+            <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: result.query_test.content_fix ? 10 : 0 }}>
               <strong>Why:</strong> {result.query_test.reason}
             </div>
+            {result.query_test.content_fix && (
+              <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, padding: "10px 14px", backgroundColor: "#fffbeb", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
+                <strong>Quick fix:</strong> {result.query_test.content_fix}
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>
