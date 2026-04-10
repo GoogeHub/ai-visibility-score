@@ -109,7 +109,7 @@ export default function Landing() {
       </div>
 
       {/* How it works */}
-      <div style={{ padding: "80px 40px" }}>
+      <div style={{ padding: "80px 40px 130px" }}>
         <div style={{ maxWidth: 740, margin: "0 auto" }}>
           <h2 style={{
             fontSize: 28,
@@ -174,7 +174,7 @@ export default function Landing() {
           style={{
             width: 250,
             maxWidth: "80%",
-            marginTop: -150,
+            marginTop: -100,
             display: "block",
             position: "relative",
             zIndex: 1,
@@ -185,7 +185,7 @@ export default function Landing() {
       {/* CTA Repeat */}
       <div style={{
         backgroundColor: "#0f172a",
-        padding: "20px 40px 80px",
+        padding: "0px 40px 80px",
         textAlign: "center",
       }}>
         <h2 style={{
