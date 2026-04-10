@@ -172,7 +172,7 @@ export default function Landing() {
           src="/Scout.png"
           alt=""
           style={{
-            width: 500,
+            width: 250,
             maxWidth: "80%",
             marginTop: -150,
             display: "block",
