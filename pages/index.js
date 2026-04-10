@@ -41,7 +41,7 @@ export default function Landing() {
       <div style={{
         maxWidth: 820,
         margin: "0 auto",
-        padding: "100px 40px 80px",
+        padding: "50px 40px 80px",
         textAlign: "center",
       }}>
 
