@@ -195,12 +195,12 @@ export default function Landing() {
           margin: "0 0 16px",
           letterSpacing: "-0.01em",
         }}>
-          Free. Fast. No account needed.
+          Find out where you stand.
         </h2>
         <p style={{ fontSize: 17, color: "#94a3b8", margin: "0 0 36px" }}>
-          Find out where you stand in under 30 seconds.
+          No account required · Results in under 30 seconds
         </p>
-        <button onClick={() => router.push("/check")} style={ctaButton(false)}>
+        <button onClick={() => router.push("/check")} style={ctaButton(true)}>
           Check Your AI Visibility →
         </button>
       </div>
