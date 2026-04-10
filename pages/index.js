@@ -161,10 +161,31 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* Scout mascot — straddles the light/dark boundary */}
+      <div style={{
+        backgroundColor: "#0f172a",
+        display: "flex",
+        justifyContent: "center",
+        overflow: "visible",
+      }}>
+        <img
+          src="/Scout.png"
+          alt=""
+          style={{
+            width: 500,
+            maxWidth: "80%",
+            marginTop: -150,
+            display: "block",
+            position: "relative",
+            zIndex: 1,
+          }}
+        />
+      </div>
+
       {/* CTA Repeat */}
       <div style={{
         backgroundColor: "#0f172a",
-        padding: "80px 40px",
+        padding: "20px 40px 80px",
         textAlign: "center",
       }}>
         <h2 style={{
