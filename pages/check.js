@@ -628,19 +628,6 @@ export default function Check() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Business Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Studio Bravo"
-                  value={form.businessName}
-                  onChange={(e) => updateForm("businessName", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Website URL <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
@@ -655,11 +642,24 @@ export default function Check() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
+                  Business Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Acme Co."
+                  value={form.businessName}
+                  onChange={(e) => updateForm("businessName", e.target.value)}
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Industry
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Branding, Legal, Architecture, Finance"
+                  placeholder="e.g. Legal, Architecture, Retail, Finance"
                   value={form.industry}
                   onChange={(e) => updateForm("industry", e.target.value)}
                   style={inputStyle}
@@ -671,7 +671,7 @@ export default function Check() {
                   What do you want AI to recommend you for?
                 </label>
                 <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>
-                  Add up to 3 searches your ideal customers might use. e.g. "Brand agency in Melbourne" or "Arts sector web design".
+                  Add up to 3 searches your ideal customers might use.
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {form.targetQueries.map((q, i) => (
@@ -679,7 +679,7 @@ export default function Check() {
                       <span style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", width: 16, flexShrink: 0 }}>{i + 1}</span>
                       <input
                         type="text"
-                        placeholder={i === 0 ? "e.g. Brand strategy agency in Melbourne" : i === 1 ? "e.g. Arts sector web design" : "Optional third query"}
+                        placeholder={i === 0 ? "e.g. Accountant in Sydney" : i === 1 ? "e.g. Small business tax advice" : "e.g. Optional third query"}
                         value={q}
                         onChange={(e) => {
                           const updated = [...form.targetQueries];
