@@ -1,24 +1,27 @@
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 export default function Landing() {
   const router = useRouter();
+  const [btnHover, setBtnHover] = useState(false);
 
   const ctaButton = (dark = true) => ({
     padding: "16px 36px",
-    backgroundColor: dark ? "#0f172a" : "#fff",
-    color: dark ? "#fff" : "#0f172a",
+    backgroundColor: dark ? (btnHover ? "#0d35a8" : "#1143cc") : "#fff",
+    color: dark ? "#fff" : "#1143cc",
     border: "none",
     borderRadius: 10,
     fontSize: 17,
     fontWeight: 700,
     cursor: "pointer",
     display: "inline-block",
+    transition: "background-color 0.15s ease",
   });
 
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#fff",
+      backgroundColor: "#fcf6f6",
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     }}>
 
@@ -44,7 +47,7 @@ export default function Landing() {
         <h1 style={{
           fontSize: 54,
           fontWeight: 800,
-          color: "#0f172a",
+          color: "#1143cc",
           lineHeight: 1.1,
           margin: "0 0 24px",
           letterSpacing: "-0.02em",
@@ -63,7 +66,12 @@ export default function Landing() {
           Find out how visible yours is — and exactly what to do about it.
         </p>
 
-        <button onClick={() => router.push("/check")} style={ctaButton(true)}>
+        <button
+          onClick={() => router.push("/check")}
+          style={ctaButton(true)}
+          onMouseEnter={() => setBtnHover(true)}
+          onMouseLeave={() => setBtnHover(false)}
+        >
           Check Your AI Visibility →
         </button>
 
@@ -73,12 +81,12 @@ export default function Landing() {
       </div>
 
       {/* Problem Section */}
-      <div style={{ backgroundColor: "#f8fafc", padding: "80px 40px" }}>
+      <div style={{ backgroundColor: "#e6eaf5", padding: "80px 40px" }}>
         <div style={{ maxWidth: 740, margin: "0 auto" }}>
           <h2 style={{
             fontSize: 38,
             fontWeight: 800,
-            color: "#0f172a",
+            color: "#1143cc",
             lineHeight: 1.15,
             margin: "0 0 24px",
             letterSpacing: "-0.01em",
@@ -105,7 +113,7 @@ export default function Landing() {
           <h2 style={{
             fontSize: 28,
             fontWeight: 800,
-            color: "#0f172a",
+            color: "#1143cc",
             margin: "0 0 48px",
             textAlign: "center",
             letterSpacing: "-0.01em",
@@ -140,7 +148,7 @@ export default function Landing() {
                 }}>
                   {step}
                 </div>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: "#1143cc", margin: "0 0 8px" }}>
                   {title}
                 </h3>
                 <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.6, margin: 0 }}>
