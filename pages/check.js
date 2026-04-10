@@ -589,7 +589,7 @@ export default function Check() {
       {/* Nav */}
       <nav style={{
         padding: "20px 40px",
-        borderBottom: "1px solid #e2e8f0",
+        borderBottom: "none",
         backgroundColor: "#fff",
         display: "flex",
         alignItems: "center",
@@ -598,7 +598,7 @@ export default function Check() {
         <img
           src="/AI-ScoreScout_logo.png"
           alt="AI Score Scout"
-          style={{ height: 44, cursor: "pointer" }}
+          style={{ width: 375, cursor: "pointer" }}
           onClick={() => router.push("/")}
         />
       </nav>

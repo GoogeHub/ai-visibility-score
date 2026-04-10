@@ -28,9 +28,9 @@ export default function Landing() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        borderBottom: "1px solid #f1f5f9",
+        borderBottom: "none",
       }}>
-        <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ height: 44 }} />
+        <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 375 }} />
       </nav>
 
       {/* Hero */}
@@ -40,19 +40,6 @@ export default function Landing() {
         padding: "100px 40px 80px",
         textAlign: "center",
       }}>
-        <div style={{
-          display: "inline-block",
-          padding: "6px 14px",
-          backgroundColor: "#f1f5f9",
-          borderRadius: 99,
-          fontSize: 13,
-          fontWeight: 600,
-          color: "#64748b",
-          marginBottom: 28,
-          letterSpacing: "0.02em",
-        }}>
-          Free · Takes 2 minutes
-        </div>
 
         <h1 style={{
           fontSize: 54,
