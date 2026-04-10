@@ -24,6 +24,7 @@ export default function Landing() {
       backgroundColor: "#fcf6f6",
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     }}>
+      <style>{`@media (min-width: 768px) { .hero-logo { width: 500px !important; } }`}</style>
 
       {/* Nav */}
       <nav style={{
@@ -33,7 +34,7 @@ export default function Landing() {
         alignItems: "center",
         borderBottom: "none",
       }}>
-        <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 375 }} />
+        <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 375 }} className="hero-logo" />
       </nav>
 
       {/* Hero */}
@@ -52,7 +53,7 @@ export default function Landing() {
           margin: "0 0 24px",
           letterSpacing: "-0.02em",
         }}>
-          AI is now the first place people search. Does your business show up?
+          AI is the first place people search. Does your business show up?
         </h1>
 
         <p style={{
