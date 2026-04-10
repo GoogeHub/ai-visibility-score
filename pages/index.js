@@ -52,7 +52,7 @@ export default function Landing() {
           margin: "0 0 24px",
           letterSpacing: "-0.02em",
         }}>
-          When someone asks AI who to hire — do you come up?
+          AI is now the first place people search. Does your business show up?
         </h1>
 
         <p style={{
