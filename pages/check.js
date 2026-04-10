@@ -593,14 +593,14 @@ export default function Check() {
         backgroundColor: "#fff",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "center",
       }}>
-        <button
+        <img
+          src="/AI-ScoreScout_logo.png"
+          alt="AI Score Scout"
+          style={{ height: 44, cursor: "pointer" }}
           onClick={() => router.push("/")}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontWeight: 800, fontSize: 17, color: "#0f172a" }}
-        >
-          AI Visibility Score
-        </button>
+        />
       </nav>
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "60px 24px 80px" }}>

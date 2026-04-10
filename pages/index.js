@@ -26,23 +26,11 @@ export default function Landing() {
       <nav style={{
         padding: "20px 40px",
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "center",
         alignItems: "center",
         borderBottom: "1px solid #f1f5f9",
       }}>
-        <div style={{ fontWeight: 800, fontSize: 17, color: "#0f172a" }}>AI Visibility Score</div>
-        <button onClick={() => router.push("/check")} style={{
-          padding: "10px 20px",
-          backgroundColor: "#0f172a",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          fontWeight: 600,
-          fontSize: 14,
-          cursor: "pointer",
-        }}>
-          Check Your Score
-        </button>
+        <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ height: 44 }} />
       </nav>
 
       {/* Hero */}
