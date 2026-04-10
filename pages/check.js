@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 const inputStyle = {
   width: "100%",
   padding: "12px 16px",
-  fontSize: 15,
+  fontSize: 16,
   border: "1px solid #e2e8f0",
   borderRadius: 8,
   outline: "none",
