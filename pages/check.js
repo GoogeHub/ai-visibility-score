@@ -271,7 +271,7 @@ function ResultsView({ result, formData, onReset }) {
         <PaymentModal
           email={formData.email}
           onClose={() => setShowModal(false)}
-          onSuccess={() => { setShowModal(false); setUnlocked(true); }}
+          onSuccess={() => { setShowModal(false); setUnlocked(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
         />
       )}
 
@@ -565,6 +565,7 @@ export default function Check() {
         setError("Something went wrong. Please try again.");
       } else {
         setResult(data);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch {
       setError("Something went wrong. Please try again.");
