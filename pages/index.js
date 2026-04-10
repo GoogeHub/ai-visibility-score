@@ -52,7 +52,7 @@ export default function Landing() {
           margin: "0 0 24px",
           letterSpacing: "-0.02em",
         }}>
-          When someone asks AI who<br />to hire — do you come up?
+          When someone asks AI who to hire — do you come up?
         </h1>
 
         <p style={{
@@ -120,7 +120,7 @@ export default function Landing() {
           }}>
             How it works
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 40 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 40 }}>
             {[
               {
                 step: "01",
