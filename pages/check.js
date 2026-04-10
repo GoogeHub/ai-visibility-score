@@ -43,7 +43,7 @@ function ScoreBar({ score }) {
         height: 20,
         borderRadius: "50%",
         backgroundColor: "#fff",
-        border: "3px solid #0f172a",
+        border: "3px solid #1143cc",
         boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
       }} />
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "#94a3b8" }}>
@@ -90,7 +90,7 @@ function LockedCard({ title, teaser, children, unlocked }) {
         alignItems: "flex-start",
       }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>{title}</div>
+          <div style={{ fontWeight: 700, fontSize: 16, color: "#1143cc", marginBottom: 4 }}>{title}</div>
           <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>{teaser}</div>
         </div>
         <span style={{ fontSize: 18, marginLeft: 12, flexShrink: 0 }}>
@@ -152,7 +152,7 @@ function PaymentModal({ onClose, onSuccess, email }) {
           <>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 20, color: "#0f172a" }}>Unlock Full Report</div>
+                <div style={{ fontWeight: 800, fontSize: 20, color: "#1143cc" }}>Unlock Full Report</div>
                 <div style={{ fontSize: 13, color: "#64748b", marginTop: 3 }}>One-time · No subscription</div>
               </div>
               <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8", padding: 0 }}>✕</button>
@@ -194,7 +194,7 @@ function PaymentModal({ onClose, onSuccess, email }) {
                 width: "100%",
                 marginTop: 20,
                 padding: "15px",
-                backgroundColor: processing ? "#94a3b8" : "#0f172a",
+                backgroundColor: processing ? "#94a3b8" : "#1143cc",
                 color: "#fff",
                 border: "none",
                 borderRadius: 10,
@@ -469,7 +469,7 @@ function ResultsView({ result, formData, onReset }) {
 
       {/* Unlock CTA — hidden once unlocked */}
       {!unlocked && <div style={{
-        backgroundColor: "#0f172a",
+        backgroundColor: "#1143cc",
         borderRadius: 16,
         padding: "28px 24px",
         textAlign: "center",
@@ -582,7 +582,7 @@ export default function Check() {
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#f8fafc",
+      backgroundColor: "#fcf6f6",
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     }}>
 
@@ -608,7 +608,7 @@ export default function Check() {
         {!result ? (
           <>
             <div style={{ marginBottom: 40 }}>
-              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", letterSpacing: "-0.01em" }}>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#1143cc", margin: "0 0 8px", letterSpacing: "-0.01em" }}>
                 Check your AI Visibility
               </h1>
               <p style={{ color: "#64748b", fontSize: 16, margin: 0, lineHeight: 1.6 }}>
@@ -627,7 +627,7 @@ export default function Check() {
             }}>
 
               <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Business Name
                 </label>
                 <input
@@ -640,7 +640,7 @@ export default function Check() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Website URL <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
@@ -654,7 +654,7 @@ export default function Check() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Industry
                 </label>
                 <input
@@ -667,7 +667,7 @@ export default function Check() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 4, fontSize: 15 }}>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 4, fontSize: 15 }}>
                   What do you want AI to recommend you for?
                 </label>
                 <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>
@@ -694,7 +694,7 @@ export default function Check() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#0f172a", marginBottom: 6, fontSize: 15 }}>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Email{" "}
                   <span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
                 </label>
@@ -716,7 +716,7 @@ export default function Check() {
                   style={{
                     width: "100%",
                     padding: "16px",
-                    backgroundColor: loading || !form.url ? "#cbd5e1" : "#0f172a",
+                    backgroundColor: loading || !form.url ? "#cbd5e1" : "#1143cc",
                     color: "#fff",
                     border: "none",
                     borderRadius: 10,
