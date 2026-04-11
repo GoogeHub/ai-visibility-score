@@ -472,8 +472,9 @@ function ResultsView({ result, formData, onReset }) {
           textAlign: "center",
         }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Full Report
+            Unlock Full Report
           </div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
           <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
             Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
           </p>
@@ -491,7 +492,7 @@ function ResultsView({ result, formData, onReset }) {
               cursor: "pointer",
             }}
           >
-            📬 Email Me the Full Report — Free
+            🔓 Unlock Full Report — $49
           </button>
         </div>
       ) : (
