@@ -65,7 +65,7 @@ export function generateEmail(result, formData) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 580px;">
 
         <!-- Header -->
-        <tr><td style="background: #0f172a; border-radius: 16px 16px 0 0; padding: 28px; text-align: center;">
+        <tr><td style="background: #fcf6f6; border-radius: 16px 16px 0 0; padding: 28px; text-align: center;">
           <img src="https://ai-visibility-score-green.vercel.app/AI-ScoreScout_logo.png" width="180" alt="AI Score Scout" style="display: block; margin: 0 auto;" />
         </td></tr>
 
@@ -106,10 +106,14 @@ export function generateEmail(result, formData) {
             <tr><td>${aiRecognition}</td></tr>
 
             ${sectionTitle("Content Gap Analysis")}
-            <table width="100%" cellpadding="0" cellspacing="0">${contentGaps}</table>
+            <tr><td>
+              <table width="100%" cellpadding="0" cellspacing="0">${contentGaps}</table>
+            </td></tr>
 
             ${sectionTitle("Priority Fix List")}
-            <table width="100%" cellpadding="0" cellspacing="0">${priorityFixes}</table>
+            <tr><td>
+              <table width="100%" cellpadding="0" cellspacing="0">${priorityFixes}</table>
+            </td></tr>
 
             ${result.technical_issues?.length ? sectionTitle("Technical Audit") : ""}
             ${(result.technical_issues || []).map(issue => `
