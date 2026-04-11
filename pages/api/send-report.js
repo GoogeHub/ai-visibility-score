@@ -66,7 +66,7 @@ export function generateEmail(result, formData) {
 
         <!-- Header -->
         <tr><td style="background: #fcf6f6; border-radius: 16px 16px 0 0; padding: 28px; text-align: center;">
-          <img src="https://ai-visibility-score-green.vercel.app/AI-ScoreScout_logo.png" width="180" alt="AI Score Scout" style="display: block; margin: 0 auto;" />
+          <img src="https://ai-visibility-score-green.vercel.app/AI-ScoreScout_logo.png" width="270" alt="AI Score Scout" style="display: block; margin: 0 auto;" />
         </td></tr>
 
         <!-- Score -->
