@@ -319,7 +319,7 @@ function ResultsView({ result, formData, onReset }) {
       </div>
 
       <LockedCard
-        unlocked={unlocked}
+        unlocked={false}
         title="Industry Benchmark"
         teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
       >
@@ -341,7 +341,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={unlocked}
+        unlocked={false}
         title="Target Query Test"
         teaser={
           formData.targetQueries?.filter(Boolean).length > 0
@@ -408,7 +408,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={unlocked}
+        unlocked={false}
         title="Content Gap Analysis"
         teaser="The specific language and topics AI is missing from your site — and exactly how to add them."
       >
@@ -424,7 +424,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={unlocked}
+        unlocked={false}
         title="AI Recognition"
         teaser="Is your business already known by AI — and does it matter for you?"
       >
@@ -432,7 +432,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={unlocked}
+        unlocked={false}
         title="Priority Fix List"
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
       >
