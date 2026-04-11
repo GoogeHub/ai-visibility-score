@@ -325,6 +325,7 @@ function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
 function ResultsView({ result, formData, onReset }) {
   const [showModal, setShowModal] = useState(false);
   const [reportSentTo, setReportSentTo] = useState(null);
+  const [showFull, setShowFull] = useState(false);
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
 
@@ -420,7 +421,7 @@ function ResultsView({ result, formData, onReset }) {
       </div>
 
       <LockedCard
-        unlocked={false}
+        unlocked={showFull}
         title="Industry Benchmark"
         teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
       >
@@ -442,7 +443,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={false}
+        unlocked={showFull}
         title="Target Query Test"
         teaser={
           formData.targetQueries?.filter(Boolean).length > 0
@@ -509,7 +510,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={false}
+        unlocked={showFull}
         title="Content Gap Analysis"
         teaser="The specific language and topics AI is missing from your site — and exactly how to add them."
       >
@@ -525,7 +526,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={false}
+        unlocked={showFull}
         title="AI Recognition"
         teaser="Is your business already known by AI — and does it matter for you?"
       >
@@ -533,7 +534,7 @@ function ResultsView({ result, formData, onReset }) {
       </LockedCard>
 
       <LockedCard
-        unlocked={false}
+        unlocked={showFull}
         title="Priority Fix List"
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
       >
@@ -610,22 +611,37 @@ function ResultsView({ result, formData, onReset }) {
         </div>
       )}
 
-      {/* Run another */}
-      <button
-        onClick={onReset}
-        style={{
-          padding: "14px",
-          backgroundColor: "#f1f5f9",
-          color: "#0f172a",
-          border: "none",
-          borderRadius: 10,
-          fontSize: 15,
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
-        ← Check Another Website
-      </button>
+      {/* Bottom bar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 0" }}>
+        <button
+          onClick={onReset}
+          style={{
+            background: "none",
+            color: "#64748b",
+            border: "none",
+            fontSize: 15,
+            fontWeight: 600,
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          ← Check Another Website
+        </button>
+        <button
+          onClick={() => setShowFull(f => !f)}
+          style={{
+            background: "none",
+            color: "#1143cc",
+            border: "none",
+            fontSize: 15,
+            fontWeight: 600,
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          {showFull ? "Hide full report" : "Show full report →"}
+        </button>
+      </div>
 
     </div>
   );
