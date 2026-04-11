@@ -113,20 +113,30 @@ function LockedCard({ title, teaser, children, unlocked }) {
   );
 }
 
-function PaymentModal({ onClose, onSuccess, email }) {
-  const [name, setName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [processing, setProcessing] = useState(false);
+function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
+  const [email, setEmail] = useState(prefillEmail || "");
+  const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState(null);
 
-  function handlePay() {
-    setProcessing(true);
-    setTimeout(() => {
+  async function handleSend() {
+    if (!email) return;
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, result, formData }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send");
       setDone(true);
-      setTimeout(() => onSuccess(), 800);
-    }, 1500);
+      setTimeout(() => onSent(email), 1500);
+    } catch (err) {
+      setError(err.message);
+      setSending(false);
+    }
   }
 
   return (
@@ -150,76 +160,60 @@ function PaymentModal({ onClose, onSuccess, email }) {
       }}>
         {!done ? (
           <>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 20, color: "#1143cc" }}>Unlock Full Report</div>
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 3 }}>One-time · No subscription</div>
+                <div style={{ fontWeight: 800, fontSize: 20, color: "#1143cc" }}>Get Your Full Report</div>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 3 }}>Free · Delivered to your inbox</div>
               </div>
               <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8", padding: 0 }}>✕</button>
             </div>
 
-            <div style={{ backgroundColor: "#f8fafc", borderRadius: 10, padding: "14px 16px", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>AI Visibility Full Report</div>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Industry benchmark · Query tests · Content gaps · Priority fixes · AI Recognition</div>
-              </div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginLeft: 12, flexShrink: 0 }}>$49</div>
+            <div style={{ backgroundColor: "#f8fafc", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
+              Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 5 }}>Name on card</label>
-                <input type="text" placeholder="Jane Smith" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 5 }}>Card number</label>
-                <input type="text" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={e => setCardNumber(e.target.value)} style={inputStyle} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 5 }}>Expiry</label>
-                  <input type="text" placeholder="MM / YY" value={expiry} onChange={e => setExpiry(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 5 }}>CVV</label>
-                  <input type="text" placeholder="123" value={cvv} onChange={e => setCvv(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-            </div>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6 }}>Your email address</label>
+            <input
+              type="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSend()}
+              style={inputStyle}
+            />
+
+            {error && (
+              <div style={{ marginTop: 10, fontSize: 13, color: "#dc2626" }}>{error}</div>
+            )}
 
             <button
-              onClick={handlePay}
-              disabled={processing}
+              onClick={handleSend}
+              disabled={sending || !email}
               style={{
                 width: "100%",
-                marginTop: 20,
+                marginTop: 16,
                 padding: "15px",
-                backgroundColor: processing ? "#94a3b8" : "#1143cc",
+                backgroundColor: sending || !email ? "#94a3b8" : "#1143cc",
                 color: "#fff",
                 border: "none",
                 borderRadius: 10,
                 fontSize: 16,
                 fontWeight: 700,
-                cursor: processing ? "not-allowed" : "pointer",
+                cursor: sending || !email ? "not-allowed" : "pointer",
               }}
             >
-              {processing ? "Processing..." : "Pay $49 →"}
+              {sending ? "Sending..." : "Email Me the Full Report →"}
             </button>
 
-            {email && (
-              <div style={{ marginTop: 10, textAlign: "center", fontSize: 12, color: "#94a3b8" }}>
-                Report also sent to {email}
-              </div>
-            )}
-            <div style={{ marginTop: 8, textAlign: "center", fontSize: 12, color: "#94a3b8" }}>
-              🔒 Secure payment · Your data is private
+            <div style={{ marginTop: 10, textAlign: "center", fontSize: 12, color: "#94a3b8" }}>
+              No spam · We only send your report
             </div>
           </>
         ) : (
           <div style={{ textAlign: "center", padding: "16px 0" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-            <div style={{ fontWeight: 800, fontSize: 20, color: "#0f172a", marginBottom: 8 }}>Payment confirmed</div>
-            <div style={{ fontSize: 14, color: "#64748b" }}>Unlocking your full report…</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
+            <div style={{ fontWeight: 800, fontSize: 20, color: "#0f172a", marginBottom: 8 }}>Report on its way!</div>
+            <div style={{ fontSize: 14, color: "#64748b" }}>Check your inbox at {email}</div>
           </div>
         )}
       </div>
@@ -228,8 +222,8 @@ function PaymentModal({ onClose, onSuccess, email }) {
 }
 
 function ResultsView({ result, formData, onReset }) {
-  const [unlocked, setUnlocked] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [reportSentTo, setReportSentTo] = useState(null);
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
 
@@ -268,10 +262,12 @@ function ResultsView({ result, formData, onReset }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {showModal && (
-        <PaymentModal
-          email={formData.email}
+        <EmailModal
           onClose={() => setShowModal(false)}
-          onSuccess={() => { setShowModal(false); setUnlocked(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          onSent={(email) => { setReportSentTo(email); setShowModal(false); }}
+          prefillEmail={formData.email}
+          result={result}
+          formData={formData}
         />
       )}
 
@@ -467,44 +463,50 @@ function ResultsView({ result, formData, onReset }) {
         )}
       </LockedCard>
 
-      {/* Unlock CTA — hidden once unlocked */}
-      {!unlocked && <div style={{
-        backgroundColor: "#1143cc",
-        borderRadius: 16,
-        padding: "28px 24px",
-        textAlign: "center",
-      }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-          Unlock Full Report
-        </div>
-        <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>
-          $49
-        </div>
-        <p style={{ fontSize: 14, color: "#94a3b8", margin: "0 0 20px", lineHeight: 1.6 }}>
-          Industry benchmark · Target query test · Content gaps · Priority fixes · AI Recognition
-        </p>
-        <button
-          onClick={() => setShowModal(true)}
-          style={{
-            width: "100%",
-            padding: "16px",
-            backgroundColor: "#fff",
-            color: "#0f172a",
-            border: "none",
-            borderRadius: 10,
-            fontSize: 16,
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          🔓 Unlock Full Report — $49
-        </button>
-        {formData.email && (
-          <div style={{ marginTop: 12, fontSize: 12, color: "#64748b" }}>
-            Report will be sent to {formData.email}
+      {/* Email CTA */}
+      {!reportSentTo ? (
+        <div style={{
+          backgroundColor: "#1143cc",
+          borderRadius: 16,
+          padding: "28px 24px",
+          textAlign: "center",
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            Full Report
           </div>
-        )}
-      </div>}
+          <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
+            Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
+          </p>
+          <button
+            onClick={() => setShowModal(true)}
+            style={{
+              width: "100%",
+              padding: "16px",
+              backgroundColor: "#fff",
+              color: "#1143cc",
+              border: "none",
+              borderRadius: 10,
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            📬 Email Me the Full Report — Free
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          backgroundColor: "#f0fdf4",
+          border: "1px solid #bbf7d0",
+          borderRadius: 16,
+          padding: "28px 24px",
+          textAlign: "center",
+        }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>📬</div>
+          <div style={{ fontWeight: 800, fontSize: 18, color: "#15803d", marginBottom: 6 }}>Report sent!</div>
+          <div style={{ fontSize: 14, color: "#166534" }}>Check your inbox at <strong>{reportSentTo}</strong></div>
+        </div>
+      )}
 
       {/* Run another */}
       <button
