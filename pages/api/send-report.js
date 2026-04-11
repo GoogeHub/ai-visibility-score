@@ -1,4 +1,4 @@
-function generateEmail(result, formData) {
+export function generateEmail(result, formData) {
   const displayName = formData.businessName || "Your business";
   const labelColors = {
     Strong: { bg: "#f0fdf4", color: "#16a34a" },
