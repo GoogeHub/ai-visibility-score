@@ -77,7 +77,7 @@ export default function Landing() {
         </button>
 
         <div style={{ marginTop: 16, fontSize: 14, color: "#94a3b8" }}>
-          No account required · Results in under 30 seconds
+          No account required · Results in 30 seconds
         </div>
       </div>
 
@@ -198,7 +198,7 @@ export default function Landing() {
           Find out where you stand.
         </h2>
         <p style={{ fontSize: 17, color: "#94a3b8", margin: "0 0 36px" }}>
-          No account required · Results in under 30 seconds
+          No account required · Results in 30 seconds
         </p>
         <button onClick={() => router.push("/check")} style={ctaButton(true)}>
           Check Your AI Visibility →
