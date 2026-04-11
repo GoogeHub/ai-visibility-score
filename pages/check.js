@@ -115,14 +115,29 @@ function LockedCard({ title, teaser, children, unlocked }) {
 
 function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
   const [email, setEmail] = useState(prefillEmail || "");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [nameOnCard, setNameOnCard] = useState("");
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState(null);
 
-  async function handleSend() {
-    if (!email) return;
+  function formatCardNumber(val) {
+    return val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  }
+  function formatExpiry(val) {
+    const digits = val.replace(/\D/g, "").slice(0, 4);
+    if (digits.length >= 3) return digits.slice(0, 2) + " / " + digits.slice(2);
+    return digits;
+  }
+
+  async function handlePay() {
+    if (!email || !cardNumber || !expiry || !cvv || !nameOnCard) return;
     setSending(true);
     setError(null);
+    // Fake processing delay
+    await new Promise(r => setTimeout(r, 1800));
     try {
       const res = await fetch("/api/send-report", {
         method: "POST",
@@ -132,88 +147,174 @@ function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send");
       setDone(true);
-      setTimeout(() => onSent(email), 1500);
+      setTimeout(() => onSent(email), 2000);
     } catch (err) {
       setError(err.message);
       setSending(false);
     }
   }
 
+  const stripeInput = (extraStyle = {}) => ({
+    width: "100%",
+    padding: "11px 14px",
+    border: "1px solid #e3e8ee",
+    borderRadius: 6,
+    fontSize: 16,
+    color: "#0f172a",
+    outline: "none",
+    backgroundColor: "#fff",
+    boxSizing: "border-box",
+    ...extraStyle,
+  });
+
+  const displayName = formData?.businessName || result?.business_name || "Your business";
+
   return (
     <div style={{
       position: "fixed",
       inset: 0,
-      backgroundColor: "rgba(15,23,42,0.6)",
+      backgroundColor: "rgba(15,23,42,0.65)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       zIndex: 1000,
-      padding: 24,
+      padding: 20,
     }}>
       <div style={{
         backgroundColor: "#fff",
-        borderRadius: 16,
-        padding: "32px 28px",
+        borderRadius: 12,
         maxWidth: 420,
         width: "100%",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.25)",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+        overflow: "hidden",
       }}>
         {!done ? (
           <>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 20, color: "#1143cc" }}>Get Your Full Report</div>
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 3 }}>Free · Delivered to your inbox</div>
+            {/* Header stripe */}
+            <div style={{ backgroundColor: "#f6f9fc", padding: "20px 24px 16px", borderBottom: "1px solid #e3e8ee" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <div style={{ fontSize: 13, color: "#697386", marginBottom: 2 }}>AI Score Scout</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#0f172a" }}>$49.00</div>
+                  <div style={{ fontSize: 13, color: "#697386", marginTop: 2 }}>Full AI Visibility Report — {displayName}</div>
+                </div>
+                <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#aab7c4", padding: 0, lineHeight: 1 }}>✕</button>
               </div>
-              <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: "#94a3b8", padding: 0 }}>✕</button>
             </div>
 
-            <div style={{ backgroundColor: "#f8fafc", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
-              Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
-            </div>
+            {/* Form body */}
+            <div style={{ padding: "20px 24px 24px" }}>
 
-            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6 }}>Your email address</label>
-            <input
-              type="email"
-              placeholder="you@company.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleSend()}
-              style={inputStyle}
-            />
+              {/* Email */}
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Email</label>
+                <input
+                  type="email"
+                  placeholder="you@company.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  style={stripeInput()}
+                />
+              </div>
 
-            {error && (
-              <div style={{ marginTop: 10, fontSize: 13, color: "#dc2626" }}>{error}</div>
-            )}
+              {/* Card info section */}
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Card information</label>
+                {/* Card number */}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="1234 1234 1234 1234"
+                  value={cardNumber}
+                  onChange={e => setCardNumber(formatCardNumber(e.target.value))}
+                  style={stripeInput({ borderRadius: "6px 6px 0 0", borderBottom: "none" })}
+                />
+                {/* Expiry + CVV row */}
+                <div style={{ display: "flex" }}>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="MM / YY"
+                    value={expiry}
+                    onChange={e => setExpiry(formatExpiry(e.target.value))}
+                    style={stripeInput({ borderRadius: "0 0 0 6px", width: "50%", borderRight: "none" })}
+                  />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="CVV"
+                    value={cvv}
+                    onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    style={stripeInput({ borderRadius: "0 0 6px 0", width: "50%" })}
+                  />
+                </div>
+              </div>
 
-            <button
-              onClick={handleSend}
-              disabled={sending || !email}
-              style={{
-                width: "100%",
-                marginTop: 16,
-                padding: "15px",
-                backgroundColor: sending || !email ? "#94a3b8" : "#1143cc",
-                color: "#fff",
-                border: "none",
-                borderRadius: 10,
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: sending || !email ? "not-allowed" : "pointer",
-              }}
-            >
-              {sending ? "Sending..." : "Email Me the Full Report →"}
-            </button>
+              {/* Name on card */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Name on card</label>
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={nameOnCard}
+                  onChange={e => setNameOnCard(e.target.value)}
+                  style={stripeInput()}
+                />
+              </div>
 
-            <div style={{ marginTop: 10, textAlign: "center", fontSize: 12, color: "#94a3b8" }}>
-              No spam · We only send your report
+              {error && (
+                <div style={{ marginBottom: 12, fontSize: 13, color: "#dc2626" }}>{error}</div>
+              )}
+
+              {/* Pay button */}
+              <button
+                onClick={handlePay}
+                disabled={sending || !email || !cardNumber || !expiry || !cvv || !nameOnCard}
+                style={{
+                  width: "100%",
+                  padding: "13px",
+                  backgroundColor: sending ? "#6772e5" : (!email || !cardNumber || !expiry || !cvv || !nameOnCard) ? "#aab7c4" : "#635bff",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: sending || !email || !cardNumber || !expiry || !cvv || !nameOnCard ? "not-allowed" : "pointer",
+                  transition: "background-color 0.15s",
+                  letterSpacing: "0.01em",
+                }}
+              >
+                {sending ? (
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation: "spin 0.8s linear infinite" }}>
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                    </svg>
+                    Processing…
+                  </span>
+                ) : "Pay $49"}
+              </button>
+
+              {/* Stripe badge */}
+              <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, color: "#aab7c4" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5l-9-4z"/></svg>
+                <span style={{ fontSize: 12 }}>Powered by</span>
+                <svg width="40" height="16" viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.8 10.9c0-.9.7-1.2 1.9-1.2 1.7 0 3.8.5 5.5 1.4V6.6C12.4 5.9 10.6 5.6 8.7 5.6c-4 0-6.7 2.1-6.7 5.5 0 5.4 7.4 4.5 7.4 6.8 0 1-.9 1.4-2.1 1.4-1.8 0-4.2-.8-6-1.8v4.6c2 .9 4 1.3 6 1.3 4.1 0 6.9-2 6.9-5.5-.1-5.8-7.3-4.8-7.3-7z" fill="#aab7c4"/>
+                  <path d="M28.8 5.9l-.3 1.4c-.9-.5-2.1-.8-3.3-.8-2.8 0-4.8 2.1-4.8 5.2s2 5.2 4.8 5.2c1.2 0 2.4-.3 3.3-.8l.3 1.4h3.4V5.9h-3.4zm-.3 8.5c-.6.4-1.3.6-2.1.6-1.7 0-2.8-1.2-2.8-2.9s1.1-2.9 2.8-2.9c.8 0 1.5.2 2.1.6v4.6z" fill="#aab7c4"/>
+                  <path d="M35.7 2.2h3.8v21h-3.8z" fill="#aab7c4"/>
+                  <path d="M51.8 5.6c-3.5 0-5.9 2.5-5.9 5.9 0 3.9 2.7 5.8 6.1 5.8 1.8 0 3.4-.4 4.7-1.3v-3.3c-1.3.8-2.7 1.2-4.1 1.2-1.6 0-2.9-.6-3.2-2.1h8v-1.4c0-3.3-1.8-4.8-5.6-4.8zm-2.4 4.7c.2-1.4 1.1-2.1 2.3-2.1s2 .7 2.1 2.1h-4.4z" fill="#aab7c4"/>
+                </svg>
+              </div>
+              <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
             </div>
           </>
         ) : (
-          <div style={{ textAlign: "center", padding: "16px 0" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
-            <div style={{ fontWeight: 800, fontSize: 20, color: "#0f172a", marginBottom: 8 }}>Report on its way!</div>
-            <div style={{ fontSize: 14, color: "#64748b" }}>Check your inbox at {email}</div>
+          <div style={{ textAlign: "center", padding: "48px 24px" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 20, color: "#0f172a", marginBottom: 8 }}>Payment successful!</div>
+            <div style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6 }}>Your full report is on its way to<br /><strong>{email}</strong></div>
           </div>
         )}
       </div>
