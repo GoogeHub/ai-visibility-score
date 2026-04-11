@@ -37,7 +37,10 @@ export function generateEmail(result, formData) {
       <div style="background: #f8fafc; border-radius: 8px; padding: 14px 16px;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
           <span style="font-weight: 700; font-size: 14px; color: #0f172a;">${fix.title}</span>
-          <span style="font-size: 12px; color: ${fix.impact === "High" ? "#dc2626" : "#d97706"}; font-weight: 600; background: ${fix.impact === "High" ? "#fef2f2" : "#fffbeb"}; padding: 2px 8px; border-radius: 99px;">${fix.impact} impact</span>
+          <span style="display: inline-flex; gap: 6px;">
+            <span style="font-size: 12px; color: ${fix.impact === "High" ? "#dc2626" : "#d97706"}; font-weight: 600; background: ${fix.impact === "High" ? "#fef2f2" : "#fffbeb"}; padding: 2px 8px; border-radius: 99px;">${fix.impact} impact</span>
+            <span style="font-size: 12px; color: #64748b; font-weight: 600; background: #f1f5f9; padding: 2px 8px; border-radius: 99px;">${fix.effort} effort</span>
+          </span>
         </div>
         <div style="font-size: 13px; color: #475569;">${fix.detail}</div>
       </div>
@@ -74,6 +77,10 @@ export function generateEmail(result, formData) {
           <div style="font-size: 14px; font-weight: 700; color: #64748b; margin-bottom: 8px;">${displayName}</div>
           <div style="font-size: 64px; font-weight: 800; color: #0f172a; line-height: 1;">${result.web_score}<span style="font-size: 28px; color: #94a3b8;"> / 100</span></div>
           <div style="margin-top: 16px; display: inline-block; background: ${lc.bg}; color: ${lc.color}; font-weight: 700; font-size: 15px; padding: 6px 20px; border-radius: 99px;">${result.web_label}</div>
+          <div style="position: relative; height: 12px; border-radius: 99px; background: linear-gradient(to right, #1e3a8a, #d946ef); margin: 24px 0 8px;">
+            <div style="position: absolute; left: ${result.web_score}%; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #1e3a8a; box-shadow: 0 1px 4px rgba(0,0,0,0.2);"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; margin-bottom: 4px;"><span>0</span><span>100</span></div>
           <p style="font-size: 15px; color: #475569; line-height: 1.7; margin: 20px 0 0; text-align: left;">${result.explanation}</p>
         </td></tr>
 
