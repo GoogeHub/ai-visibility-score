@@ -611,37 +611,6 @@ function ResultsView({ result, formData, onReset }) {
         </div>
       )}
 
-      {/* Bottom bar */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 0" }}>
-        <button
-          onClick={onReset}
-          style={{
-            background: "none",
-            color: "#64748b",
-            border: "none",
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          ← Check Another Website
-        </button>
-        <button
-          onClick={() => setShowFull(f => !f)}
-          style={{
-            background: "none",
-            color: "#1143cc",
-            border: "none",
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          {showFull ? "Hide full report" : "Show full report →"}
-        </button>
-      </div>
 
     </div>
   );
