@@ -199,6 +199,37 @@ Return ONLY valid JSON:
       try { queryGroups = JSON.parse(clean)?.query_groups || []; } catch {}
     }
 
+    // ─── Self-notification ───────────────────────────────────────────────────
+    const queriesText = queries.length > 0
+      ? queries.map((q, i) => `<li>Query ${i + 1}: ${q}</li>`).join("")
+      : "<li>None entered</li>";
+
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "AI Score Scout <report@mail.aiscorescout.com>",
+        to: ["googe@studiobravo.com.au"],
+        subject: `📊 New analysis: ${businessName || url}`,
+        html: `
+          <div style="font-family: sans-serif; font-size: 15px; color: #0f172a; max-width: 480px;">
+            <h2 style="margin: 0 0 16px;">New analysis submitted</h2>
+            <table style="border-collapse: collapse; width: 100%;">
+              <tr><td style="padding: 8px 0; color: #64748b; width: 140px;">URL</td><td style="padding: 8px 0;"><a href="${url}">${url}</a></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Business name</td><td style="padding: 8px 0;">${businessName || "—"}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Industry</td><td style="padding: 8px 0;">${industry || "—"}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Email</td><td style="padding: 8px 0;">${req.body.email || "—"}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b; vertical-align: top;">Target queries</td><td style="padding: 8px 0;"><ul style="margin: 0; padding-left: 16px;">${queriesText}</ul></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Score</td><td style="padding: 8px 0;"><strong>${analysis.web_score} / 100 — ${analysis.web_label}</strong></td></tr>
+            </table>
+          </div>
+        `,
+      }),
+    }).catch(() => {}); // fire and forget — never block the main response
+
     res.status(200).json({
       web_score: analysis.web_score,
       web_label: analysis.web_label,

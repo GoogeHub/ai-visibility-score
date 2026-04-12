@@ -173,5 +173,29 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || "Failed to send email" });
   }
 
+  // ─── Self-notification ─────────────────────────────────────────────────────
+  fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "AI Score Scout <report@mail.aiscorescout.com>",
+      to: ["googe@studiobravo.com.au"],
+      subject: `💳 New payment: ${formData?.businessName || email}`,
+      html: `
+        <div style="font-family: sans-serif; font-size: 15px; color: #0f172a; max-width: 480px;">
+          <h2 style="margin: 0 0 16px;">New report unlocked</h2>
+          <table style="border-collapse: collapse; width: 100%;">
+            <tr><td style="padding: 8px 0; color: #64748b; width: 140px;">URL</td><td style="padding: 8px 0;">${formData?.url || "—"}</td></tr>
+            <tr><td style="padding: 8px 0; color: #64748b;">Business name</td><td style="padding: 8px 0;">${formData?.businessName || "—"}</td></tr>
+            <tr><td style="padding: 8px 0; color: #64748b;">Email</td><td style="padding: 8px 0;">${email}</td></tr>
+          </table>
+        </div>
+      `,
+    }),
+  }).catch(() => {}); // fire and forget
+
   res.status(200).json({ success: true });
 }
