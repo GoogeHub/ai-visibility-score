@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 const inputStyle = {
@@ -627,7 +627,24 @@ export default function Check() {
   });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState(null);
+
+  const loadingMessages = [
+    { icon: "🔍", text: "Scanning your website…" },
+    { icon: "🤖", text: "Testing AI recognition…" },
+    { icon: "📊", text: "Running query tests…" },
+    { icon: "🧠", text: "Analysing content signals…" },
+    { icon: "📝", text: "Building your report…" },
+  ];
+
+  useEffect(() => {
+    if (!loading) { setLoadingStep(0); return; }
+    const interval = setInterval(() => {
+      setLoadingStep(s => (s + 1) % loadingMessages.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   function updateForm(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -818,9 +835,35 @@ export default function Check() {
                 </button>
 
                 {loading && (
-                  <p style={{ textAlign: "center", color: "#94a3b8", fontSize: 13, margin: "10px 0 0" }}>
-                    This usually takes 15–30 seconds
-                  </p>
+                  <div style={{
+                    position: "fixed",
+                    inset: 0,
+                    backgroundColor: "#fcf6f6",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 999,
+                    gap: 24,
+                  }}>
+                    <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 220, marginBottom: 8 }} />
+                    <div style={{ fontSize: 48 }}>{loadingMessages[loadingStep].icon}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#0f172a" }}>
+                      {loadingMessages[loadingStep].text}
+                    </div>
+                    <div style={{ fontSize: 14, color: "#94a3b8" }}>This usually takes 15–30 seconds</div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                      {loadingMessages.map((_, i) => (
+                        <div key={i} style={{
+                          width: i === loadingStep ? 20 : 6,
+                          height: 6,
+                          borderRadius: 99,
+                          backgroundColor: i === loadingStep ? "#1143cc" : "#e2e8f0",
+                          transition: "all 0.4s ease",
+                        }} />
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {error && (
