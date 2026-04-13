@@ -173,8 +173,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || "Failed to send email" });
   }
 
-  // ─── Self-notification ─────────────────────────────────────────────────────
-  fetch("https://api.resend.com/emails", {
+  // ─── Self-notification (delayed 1.5s to avoid Resend rate limit) ───────────
+  setTimeout(() => fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
@@ -195,7 +195,7 @@ export default async function handler(req, res) {
         </div>
       `,
     }),
-  }).catch(() => {}); // fire and forget
+  }).catch(() => {}), 1500); // fire and forget, delayed to avoid rate limit
 
   res.status(200).json({ success: true });
 }
