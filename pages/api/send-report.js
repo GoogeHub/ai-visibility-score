@@ -173,8 +173,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || "Failed to send email" });
   }
 
-  // ─── Self-notification (delayed 1.5s to avoid Resend rate limit) ───────────
-  setTimeout(() => fetch("https://api.resend.com/emails", {
+  // ─── Self-notification (awaited to ensure Vercel doesn't kill it early) ─────
+  await new Promise(r => setTimeout(r, 1000)); // 1s gap to respect rate limit
+  await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
@@ -195,7 +196,7 @@ export default async function handler(req, res) {
         </div>
       `,
     }),
-  }).catch(() => {}), 1500); // fire and forget, delayed to avoid rate limit
+  }).catch(() => {});
 
   res.status(200).json({ success: true });
 }
