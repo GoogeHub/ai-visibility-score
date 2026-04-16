@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe("pk_test_51TMbDPBRTTnXjBcMpdMrnPMTFSR19m6cZXis6aSMhiV04ThzaMGOUYRS6MULhHtpUuc3voMCDBmoEsyA6TXagLaP00ZIRUv4rr");
+const stripePromise = loadStripe("pk_live_51TMbDPBRTTnXjBcMwnoNNCmitY3XJlQIOxEmCVYo5BmpqKSMz7rtt0WgvbIY1HwuXN0sHZNhbjYLalbqG3p8HLdH00QM0yi9qe");
 import { useRouter } from "next/router";
 
 const inputStyle = {
