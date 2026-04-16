@@ -49,9 +49,10 @@ export function generateEmail(result, formData) {
 
   const aiRecognition = result.recognition_score === 0
     ? `<p style="font-size: 14px; color: #334155; line-height: 1.7; margin: 0;">
-        ${displayName} doesn't appear in AI training data — and that's completely normal for the vast majority of businesses. AI models only "memorise" brands that appear repeatedly across the web in their training dataset.
+        <strong>Score: 0 / 100 — Not in AI training data</strong><br/><br/>
+        ${displayName} doesn't appear in AI training data — and that's completely normal for the vast majority of businesses. AI models only "memorise" brands that appear repeatedly across the web in their training dataset: think Google, Atlassian, major law firms.
         <br/><br/>
-        The good news: it doesn't stop AI from recommending you. Most AI tools people actually use — Perplexity, ChatGPT with browsing, Google AI Overviews — search the web in real time, not from memory. Your Web Signals score is what drives those recommendations.
+        The good news: it doesn't stop AI from recommending you. Most AI tools people actually use — Perplexity, ChatGPT with browsing, Google AI Overviews — search the web in real time, not from memory. Your Web Signals score is what drives those recommendations. Training data recognition builds naturally as your online presence grows, and for most businesses, there's no shortcut needed — or available.
       </p>`
     : `<p style="font-size: 14px; color: #334155; line-height: 1.7; margin: 0;">
         <strong>Recognition score: ${result.recognition_score}/100</strong> (${result.confidence})<br/>

@@ -647,6 +647,22 @@ function ResultsView({ result, formData, onReset }) {
         )}
       </LockedCard>
 
+      <LockedCard
+        unlocked={showFull}
+        title="Technical Audit"
+        teaser="Behind-the-scenes signals that affect how AI tools crawl and interpret your site."
+      >
+        {result.technical_issues?.length > 0 ? (
+          <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+            {result.technical_issues.map((issue, i) => (
+              <li key={i} style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{issue}</li>
+            ))}
+          </ul>
+        ) : (
+          <div style={{ fontSize: 14, color: "#64748b" }}>No technical issues detected.</div>
+        )}
+      </LockedCard>
+
       {/* Unlock CTA — only shown before payment */}
       {!reportSentTo && (
         <div style={{
