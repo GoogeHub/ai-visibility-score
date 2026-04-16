@@ -415,7 +415,7 @@ function ResultsView({ result, formData, onReset }) {
       {showModal && (promoUnlocked ? (
         <EmailModal
           onClose={() => setShowModal(false)}
-          onSent={(email) => { setReportSentTo(email); setShowModal(false); }}
+          onSent={(email) => { setReportSentTo(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
           prefillEmail={formData.email}
           result={result}
           formData={formData}
@@ -423,12 +423,37 @@ function ResultsView({ result, formData, onReset }) {
       ) : (
         <PaymentModal
           onClose={() => setShowModal(false)}
-          onSent={(email) => { setReportSentTo(email); setShowModal(false); }}
+          onSent={(email) => { setReportSentTo(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
           prefillEmail={formData.email}
           result={result}
           formData={formData}
         />
       ))}
+
+      {/* Success banner — shown after payment/send */}
+      {reportSentTo && (
+        <div style={{
+          backgroundColor: "#f0fdf4",
+          border: "1px solid #bbf7d0",
+          borderRadius: 16,
+          padding: "20px 24px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 14,
+        }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: "#15803d", marginBottom: 3 }}>
+              {promoUnlocked ? "Report sent!" : "Payment confirmed — report sent!"}
+            </div>
+            <div style={{ fontSize: 13, color: "#166534", lineHeight: 1.5 }}>
+              A copy has been emailed to <strong>{reportSentTo}</strong>. Your full report is unlocked below.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Score */}
       <div style={{
@@ -622,8 +647,8 @@ function ResultsView({ result, formData, onReset }) {
         )}
       </LockedCard>
 
-      {/* Email CTA */}
-      {!reportSentTo ? (
+      {/* Unlock CTA — only shown before payment */}
+      {!reportSentTo && (
         <div style={{
           backgroundColor: "#1143cc",
           borderRadius: 16,
@@ -632,69 +657,27 @@ function ResultsView({ result, formData, onReset }) {
         }}>
           {promoUnlocked ? (
             <>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Promo Applied ✓
-              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Promo Applied ✓</div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>Get Your Full Report</div>
               <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
                 Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
               </p>
-              <button
-                onClick={() => setShowModal(true)}
-                style={{
-                  width: "100%",
-                  padding: "16px",
-                  backgroundColor: "#fff",
-                  color: "#1143cc",
-                  border: "none",
-                  borderRadius: 10,
-                  fontSize: 16,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
+              <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
                 📬 Send Me the Full Report
               </button>
             </>
           ) : (
             <>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Unlock Full Report
-              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Unlock Full Report</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
               <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
                 Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
               </p>
-              <button
-                onClick={() => setShowModal(true)}
-                style={{
-                  width: "100%",
-                  padding: "16px",
-                  backgroundColor: "#fff",
-                  color: "#1143cc",
-                  border: "none",
-                  borderRadius: 10,
-                  fontSize: 16,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
+              <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
                 🔓 Unlock Full Report — $49
               </button>
             </>
           )}
-        </div>
-      ) : (
-        <div style={{
-          backgroundColor: "#f0fdf4",
-          border: "1px solid #bbf7d0",
-          borderRadius: 16,
-          padding: "28px 24px",
-          textAlign: "center",
-        }}>
-          <div style={{ fontSize: 36, marginBottom: 12 }}>📬</div>
-          <div style={{ fontWeight: 800, fontSize: 18, color: "#15803d", marginBottom: 6 }}>Report sent!</div>
-          <div style={{ fontSize: 14, color: "#166534" }}>Check your inbox at <strong>{reportSentTo}</strong></div>
         </div>
       )}
 
