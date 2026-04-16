@@ -113,7 +113,7 @@ function LockedCard({ title, teaser, children, unlocked }) {
   );
 }
 
-function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
+function EmailModal({ onClose, onSent, prefillEmail, result, formData, promoUnlocked }) {
   const [email, setEmail] = useState(prefillEmail || "");
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -133,11 +133,11 @@ function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
   }
 
   async function handlePay() {
-    if (!email || !cardNumber || !expiry || !cvv || !nameOnCard) return;
+    if (!email) return;
+    if (!promoUnlocked && (!cardNumber || !expiry || !cvv || !nameOnCard)) return;
     setSending(true);
     setError(null);
-    // Fake processing delay
-    await new Promise(r => setTimeout(r, 1800));
+    if (!promoUnlocked) await new Promise(r => setTimeout(r, 1800));
     try {
       const res = await fetch("/api/send-report", {
         method: "POST",
@@ -217,69 +217,69 @@ function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
                 />
               </div>
 
-              {/* Card info section */}
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Card information</label>
-                {/* Card number */}
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="1234 1234 1234 1234"
-                  value={cardNumber}
-                  onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                  style={stripeInput({ borderRadius: "6px 6px 0 0", borderBottom: "none" })}
-                />
-                {/* Expiry + CVV row */}
-                <div style={{ display: "flex" }}>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="MM / YY"
-                    value={expiry}
-                    onChange={e => setExpiry(formatExpiry(e.target.value))}
-                    style={stripeInput({ borderRadius: "0 0 0 6px", width: "50%", borderRight: "none" })}
-                  />
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="CVV"
-                    value={cvv}
-                    onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    style={stripeInput({ borderRadius: "0 0 6px 0", width: "50%" })}
-                  />
-                </div>
-              </div>
-
-              {/* Name on card */}
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Name on card</label>
-                <input
-                  type="text"
-                  placeholder="Full name"
-                  value={nameOnCard}
-                  onChange={e => setNameOnCard(e.target.value)}
-                  style={stripeInput()}
-                />
-              </div>
+              {/* Card fields — hidden when promo applied */}
+              {!promoUnlocked && (
+                <>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Card information</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="1234 1234 1234 1234"
+                      value={cardNumber}
+                      onChange={e => setCardNumber(formatCardNumber(e.target.value))}
+                      style={stripeInput({ borderRadius: "6px 6px 0 0", borderBottom: "none" })}
+                    />
+                    <div style={{ display: "flex" }}>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="MM / YY"
+                        value={expiry}
+                        onChange={e => setExpiry(formatExpiry(e.target.value))}
+                        style={stripeInput({ borderRadius: "0 0 0 6px", width: "50%", borderRight: "none" })}
+                      />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="CVV"
+                        value={cvv}
+                        onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                        style={stripeInput({ borderRadius: "0 0 6px 0", width: "50%" })}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Name on card</label>
+                    <input
+                      type="text"
+                      placeholder="Full name"
+                      value={nameOnCard}
+                      onChange={e => setNameOnCard(e.target.value)}
+                      style={stripeInput()}
+                    />
+                  </div>
+                </>
+              )}
 
               {error && (
                 <div style={{ marginBottom: 12, fontSize: 13, color: "#dc2626" }}>{error}</div>
               )}
 
-              {/* Pay button */}
+              {/* Submit button */}
               <button
                 onClick={handlePay}
-                disabled={sending || !email || !cardNumber || !expiry || !cvv || !nameOnCard}
+                disabled={sending || !email || (!promoUnlocked && (!cardNumber || !expiry || !cvv || !nameOnCard))}
                 style={{
                   width: "100%",
                   padding: "13px",
-                  backgroundColor: sending ? "#6772e5" : (!email || !cardNumber || !expiry || !cvv || !nameOnCard) ? "#aab7c4" : "#635bff",
+                  backgroundColor: sending ? "#6772e5" : (promoUnlocked ? (!email ? "#aab7c4" : "#1143cc") : (!email || !cardNumber || !expiry || !cvv || !nameOnCard) ? "#aab7c4" : "#635bff"),
                   color: "#fff",
                   border: "none",
                   borderRadius: 6,
                   fontSize: 16,
                   fontWeight: 600,
-                  cursor: sending || !email || !cardNumber || !expiry || !cvv || !nameOnCard ? "not-allowed" : "pointer",
+                  cursor: "pointer",
                   transition: "background-color 0.15s",
                   letterSpacing: "0.01em",
                 }}
@@ -289,9 +289,9 @@ function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation: "spin 0.8s linear infinite" }}>
                       <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
                     </svg>
-                    Processing…
+                    Sending…
                   </span>
-                ) : "Pay $49"}
+                ) : promoUnlocked ? "Send Me the Full Report →" : "Pay $49"}
               </button>
 
               {/* Stripe badge */}
@@ -326,6 +326,7 @@ function ResultsView({ result, formData, onReset }) {
   const [showModal, setShowModal] = useState(false);
   const [reportSentTo, setReportSentTo] = useState(null);
   const [showFull, setShowFull] = useState(false);
+  const promoUnlocked = formData.promoValid === true;
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
 
@@ -370,6 +371,7 @@ function ResultsView({ result, formData, onReset }) {
           prefillEmail={formData.email}
           result={result}
           formData={formData}
+          promoUnlocked={promoUnlocked}
         />
       )}
 
@@ -573,29 +575,59 @@ function ResultsView({ result, formData, onReset }) {
           padding: "28px 24px",
           textAlign: "center",
         }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Unlock Full Report
-          </div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
-          <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
-            Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
-          </p>
-          <button
-            onClick={() => setShowModal(true)}
-            style={{
-              width: "100%",
-              padding: "16px",
-              backgroundColor: "#fff",
-              color: "#1143cc",
-              border: "none",
-              borderRadius: 10,
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            🔓 Unlock Full Report — $49
-          </button>
+          {promoUnlocked ? (
+            <>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Promo Applied ✓
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>Get Your Full Report</div>
+              <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
+                Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
+              </p>
+              <button
+                onClick={() => setShowModal(true)}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  backgroundColor: "#fff",
+                  color: "#1143cc",
+                  border: "none",
+                  borderRadius: 10,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                📬 Send Me the Full Report
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Unlock Full Report
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
+              <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
+                Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
+              </p>
+              <button
+                onClick={() => setShowModal(true)}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  backgroundColor: "#fff",
+                  color: "#1143cc",
+                  border: "none",
+                  borderRadius: 10,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                🔓 Unlock Full Report — $49
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <div style={{
@@ -624,11 +656,25 @@ export default function Check() {
     industry: "",
     targetQueries: ["", "", ""],
     email: "",
+    promoValid: false,
   });
+  const [promoCode, setPromoCode] = useState("");
+  const [promoStatus, setPromoStatus] = useState(null); // null | "valid" | "invalid"
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState(null);
+
+  const VALID_PROMO_CODES = ["SCOUT2025"];
+
+  function applyPromo() {
+    if (VALID_PROMO_CODES.includes(promoCode.trim().toUpperCase())) {
+      setPromoStatus("valid");
+      setForm(prev => ({ ...prev, promoValid: true }));
+    } else {
+      setPromoStatus("invalid");
+    }
+  }
 
   const loadingMessages = [
     { icon: "🔍", text: "Scanning your website…" },
@@ -811,6 +857,45 @@ export default function Check() {
                   onChange={(e) => updateForm("email", e.target.value)}
                   style={inputStyle}
                 />
+              </div>
+
+              {/* Promo code */}
+              <div>
+                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
+                  Promo code{" "}
+                  <span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
+                </label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="text"
+                    placeholder="Enter code"
+                    value={promoCode}
+                    onChange={e => { setPromoCode(e.target.value); setPromoStatus(null); }}
+                    onKeyDown={e => e.key === "Enter" && applyPromo()}
+                    style={{ ...inputStyle, flex: 1, textTransform: "uppercase" }}
+                    disabled={promoStatus === "valid"}
+                  />
+                  <button
+                    onClick={applyPromo}
+                    disabled={!promoCode || promoStatus === "valid"}
+                    style={{
+                      padding: "0 18px",
+                      backgroundColor: promoStatus === "valid" ? "#f0fdf4" : "#f1f5f9",
+                      color: promoStatus === "valid" ? "#16a34a" : "#475569",
+                      border: `1px solid ${promoStatus === "valid" ? "#bbf7d0" : "#e2e8f0"}`,
+                      borderRadius: 10,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: !promoCode || promoStatus === "valid" ? "default" : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {promoStatus === "valid" ? "✓ Applied" : "Apply"}
+                  </button>
+                </div>
+                {promoStatus === "invalid" && (
+                  <div style={{ marginTop: 6, fontSize: 13, color: "#dc2626" }}>Invalid promo code</div>
+                )}
               </div>
 
               <div style={{ borderTop: "1px solid #f1f5f9" }} />
