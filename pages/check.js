@@ -167,15 +167,10 @@ const ModalHeader = ({ displayName, onClose, isPromo }) => (
   </div>
 );
 const StripeBadge = () => (
-  <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, color: "#aab7c4" }}>
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5l-9-4z"/></svg>
-    <span style={{ fontSize: 12 }}>Powered by</span>
-    <svg width="40" height="16" viewBox="0 0 60 25" fill="none">
-      <path d="M6.8 10.9c0-.9.7-1.2 1.9-1.2 1.7 0 3.8.5 5.5 1.4V6.6C12.4 5.9 10.6 5.6 8.7 5.6c-4 0-6.7 2.1-6.7 5.5 0 5.4 7.4 4.5 7.4 6.8 0 1-.9 1.4-2.1 1.4-1.8 0-4.2-.8-6-1.8v4.6c2 .9 4 1.3 6 1.3 4.1 0 6.9-2 6.9-5.5-.1-5.8-7.3-4.8-7.3-7z" fill="#aab7c4"/>
-      <path d="M28.8 5.9l-.3 1.4c-.9-.5-2.1-.8-3.3-.8-2.8 0-4.8 2.1-4.8 5.2s2 5.2 4.8 5.2c1.2 0 2.4-.3 3.3-.8l.3 1.4h3.4V5.9h-3.4zm-.3 8.5c-.6.4-1.3.6-2.1.6-1.7 0-2.8-1.2-2.8-2.9s1.1-2.9 2.8-2.9c.8 0 1.5.2 2.1.6v4.6z" fill="#aab7c4"/>
-      <path d="M35.7 2.2h3.8v21h-3.8z" fill="#aab7c4"/>
-      <path d="M51.8 5.6c-3.5 0-5.9 2.5-5.9 5.9 0 3.9 2.7 5.8 6.1 5.8 1.8 0 3.4-.4 4.7-1.3v-3.3c-1.3.8-2.7 1.2-4.1 1.2-1.6 0-2.9-.6-3.2-2.1h8v-1.4c0-3.3-1.8-4.8-5.6-4.8zm-2.4 4.7c.2-1.4 1.1-2.1 2.3-2.1s2 .7 2.1 2.1h-4.4z" fill="#aab7c4"/>
-    </svg>
+  <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="#aab7c4"><path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5l-9-4z"/></svg>
+    <span style={{ fontSize: 12, color: "#aab7c4" }}>Powered by</span>
+    <span style={{ fontSize: 13, fontWeight: 700, color: "#635bff", letterSpacing: "-0.02em" }}>Stripe</span>
   </div>
 );
 
