@@ -1,4 +1,8 @@
 import { useState, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe("pk_test_51TMbDPBRTTnXjBcMpdMrnPMTFSR19m6cZXis6aSMhiV04ThzaMGOUYRS6MULhHtpUuc3voMCDBmoEsyA6TXagLaP00ZIRUv4rr");
 import { useRouter } from "next/router";
 
 const inputStyle = {
@@ -113,31 +117,79 @@ function LockedCard({ title, teaser, children, unlocked }) {
   );
 }
 
-function EmailModal({ onClose, onSent, prefillEmail, result, formData, promoUnlocked }) {
+const modalOverlay = {
+  position: "fixed", inset: 0, backgroundColor: "rgba(15,23,42,0.65)",
+  display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20,
+};
+const modalBox = {
+  backgroundColor: "#fff", borderRadius: 12, maxWidth: 420, width: "100%",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden",
+};
+const siStyle = (extra = {}) => ({
+  width: "100%", padding: "11px 14px", border: "1px solid #e3e8ee",
+  borderRadius: 6, fontSize: 16, color: "#0f172a", outline: "none",
+  backgroundColor: "#fff", boxSizing: "border-box", ...extra,
+});
+const stripeElementContainer = (extra = {}) => ({
+  padding: "11px 14px", border: "1px solid #e3e8ee", backgroundColor: "#fff", ...extra,
+});
+const cardElementOpts = {
+  style: {
+    base: {
+      fontSize: "16px", color: "#0f172a",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      "::placeholder": { color: "#94a3b8" },
+    },
+    invalid: { color: "#dc2626" },
+  },
+};
+const SuccessState = ({ email }) => (
+  <div style={{ textAlign: "center", padding: "48px 24px" }}>
+    <div style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style={{ fontWeight: 700, fontSize: 20, color: "#0f172a", marginBottom: 8 }}>Report on its way!</div>
+    <div style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6 }}>Check your inbox at<br /><strong>{email}</strong></div>
+  </div>
+);
+const ModalHeader = ({ displayName, onClose, isPromo }) => (
+  <div style={{ backgroundColor: "#f6f9fc", padding: "20px 24px 16px", borderBottom: "1px solid #e3e8ee" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div>
+        <div style={{ fontSize: 13, color: "#697386", marginBottom: 2 }}>AI Score Scout</div>
+        {!isPromo && <div style={{ fontSize: 22, fontWeight: 700, color: "#0f172a" }}>$49.00</div>}
+        <div style={{ fontSize: 13, color: "#697386", marginTop: 2 }}>
+          {isPromo ? "Full AI Visibility Report" : `Full AI Visibility Report — ${displayName}`}
+        </div>
+      </div>
+      <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#aab7c4", padding: 0, lineHeight: 1 }}>✕</button>
+    </div>
+  </div>
+);
+const StripeBadge = () => (
+  <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, color: "#aab7c4" }}>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5l-9-4z"/></svg>
+    <span style={{ fontSize: 12 }}>Powered by</span>
+    <svg width="40" height="16" viewBox="0 0 60 25" fill="none">
+      <path d="M6.8 10.9c0-.9.7-1.2 1.9-1.2 1.7 0 3.8.5 5.5 1.4V6.6C12.4 5.9 10.6 5.6 8.7 5.6c-4 0-6.7 2.1-6.7 5.5 0 5.4 7.4 4.5 7.4 6.8 0 1-.9 1.4-2.1 1.4-1.8 0-4.2-.8-6-1.8v4.6c2 .9 4 1.3 6 1.3 4.1 0 6.9-2 6.9-5.5-.1-5.8-7.3-4.8-7.3-7z" fill="#aab7c4"/>
+      <path d="M28.8 5.9l-.3 1.4c-.9-.5-2.1-.8-3.3-.8-2.8 0-4.8 2.1-4.8 5.2s2 5.2 4.8 5.2c1.2 0 2.4-.3 3.3-.8l.3 1.4h3.4V5.9h-3.4zm-.3 8.5c-.6.4-1.3.6-2.1.6-1.7 0-2.8-1.2-2.8-2.9s1.1-2.9 2.8-2.9c.8 0 1.5.2 2.1.6v4.6z" fill="#aab7c4"/>
+      <path d="M35.7 2.2h3.8v21h-3.8z" fill="#aab7c4"/>
+      <path d="M51.8 5.6c-3.5 0-5.9 2.5-5.9 5.9 0 3.9 2.7 5.8 6.1 5.8 1.8 0 3.4-.4 4.7-1.3v-3.3c-1.3.8-2.7 1.2-4.1 1.2-1.6 0-2.9-.6-3.2-2.1h8v-1.4c0-3.3-1.8-4.8-5.6-4.8zm-2.4 4.7c.2-1.4 1.1-2.1 2.3-2.1s2 .7 2.1 2.1h-4.4z" fill="#aab7c4"/>
+    </svg>
+  </div>
+);
+
+// Promo flow — email only, no payment
+function EmailModal({ onClose, onSent, prefillEmail, result, formData }) {
   const [email, setEmail] = useState(prefillEmail || "");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [nameOnCard, setNameOnCard] = useState("");
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState(null);
 
-  function formatCardNumber(val) {
-    return val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
-  }
-  function formatExpiry(val) {
-    const digits = val.replace(/\D/g, "").slice(0, 4);
-    if (digits.length >= 3) return digits.slice(0, 2) + " / " + digits.slice(2);
-    return digits;
-  }
-
-  async function handlePay() {
+  async function handleSend() {
     if (!email) return;
-    if (!promoUnlocked && (!cardNumber || !expiry || !cvv || !nameOnCard)) return;
     setSending(true);
     setError(null);
-    if (!promoUnlocked) await new Promise(r => setTimeout(r, 1800));
     try {
       const res = await fetch("/api/send-report", {
         method: "POST",
@@ -154,168 +206,169 @@ function EmailModal({ onClose, onSent, prefillEmail, result, formData, promoUnlo
     }
   }
 
-  const stripeInput = (extraStyle = {}) => ({
-    width: "100%",
-    padding: "11px 14px",
-    border: "1px solid #e3e8ee",
-    borderRadius: 6,
-    fontSize: 16,
-    color: "#0f172a",
-    outline: "none",
-    backgroundColor: "#fff",
-    boxSizing: "border-box",
-    ...extraStyle,
-  });
-
-  const displayName = formData?.businessName || result?.business_name || "Your business";
-
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      backgroundColor: "rgba(15,23,42,0.65)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000,
-      padding: 20,
-    }}>
-      <div style={{
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        maxWidth: 420,
-        width: "100%",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-        overflow: "hidden",
-      }}>
-        {!done ? (
+    <div style={modalOverlay}>
+      <div style={modalBox}>
+        {done ? <SuccessState email={email} /> : (
           <>
-            {/* Header stripe */}
-            <div style={{ backgroundColor: "#f6f9fc", padding: "20px 24px 16px", borderBottom: "1px solid #e3e8ee" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontSize: 13, color: "#697386", marginBottom: 2 }}>AI Score Scout</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#0f172a" }}>$49.00</div>
-                  <div style={{ fontSize: 13, color: "#697386", marginTop: 2 }}>Full AI Visibility Report — {displayName}</div>
-                </div>
-                <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#aab7c4", padding: 0, lineHeight: 1 }}>✕</button>
-              </div>
-            </div>
-
-            {/* Form body */}
+            <ModalHeader displayName={formData?.businessName || "Your business"} onClose={onClose} isPromo={true} />
             <div style={{ padding: "20px 24px 24px" }}>
-
-              {/* Email */}
-              <div style={{ marginBottom: 14 }}>
+              <div style={{ marginBottom: 20 }}>
                 <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Email</label>
-                <input
-                  type="email"
-                  placeholder="you@company.com"
-                  value={email}
+                <input type="email" placeholder="you@company.com" value={email}
                   onChange={e => setEmail(e.target.value)}
-                  style={stripeInput()}
-                />
+                  onKeyDown={e => e.key === "Enter" && handleSend()}
+                  style={siStyle()} />
               </div>
-
-              {/* Card fields — hidden when promo applied */}
-              {!promoUnlocked && (
-                <>
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Card information</label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="1234 1234 1234 1234"
-                      value={cardNumber}
-                      onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                      style={stripeInput({ borderRadius: "6px 6px 0 0", borderBottom: "none" })}
-                    />
-                    <div style={{ display: "flex" }}>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="MM / YY"
-                        value={expiry}
-                        onChange={e => setExpiry(formatExpiry(e.target.value))}
-                        style={stripeInput({ borderRadius: "0 0 0 6px", width: "50%", borderRight: "none" })}
-                      />
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="CVV"
-                        value={cvv}
-                        onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                        style={stripeInput({ borderRadius: "0 0 6px 0", width: "50%" })}
-                      />
-                    </div>
-                  </div>
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Name on card</label>
-                    <input
-                      type="text"
-                      placeholder="Full name"
-                      value={nameOnCard}
-                      onChange={e => setNameOnCard(e.target.value)}
-                      style={stripeInput()}
-                    />
-                  </div>
-                </>
-              )}
-
-              {error && (
-                <div style={{ marginBottom: 12, fontSize: 13, color: "#dc2626" }}>{error}</div>
-              )}
-
-              {/* Submit button */}
-              <button
-                onClick={handlePay}
-                disabled={sending || !email || (!promoUnlocked && (!cardNumber || !expiry || !cvv || !nameOnCard))}
-                style={{
-                  width: "100%",
-                  padding: "13px",
-                  backgroundColor: sending ? "#6772e5" : (promoUnlocked ? (!email ? "#aab7c4" : "#1143cc") : (!email || !cardNumber || !expiry || !cvv || !nameOnCard) ? "#aab7c4" : "#635bff"),
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "background-color 0.15s",
-                  letterSpacing: "0.01em",
-                }}
-              >
-                {sending ? (
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation: "spin 0.8s linear infinite" }}>
-                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                    </svg>
-                    Sending…
-                  </span>
-                ) : promoUnlocked ? "Send Me the Full Report →" : "Pay $49"}
+              {error && <div style={{ marginBottom: 12, fontSize: 13, color: "#dc2626" }}>{error}</div>}
+              <button onClick={handleSend} disabled={sending || !email} style={{
+                width: "100%", padding: "13px",
+                backgroundColor: sending || !email ? "#aab7c4" : "#1143cc",
+                color: "#fff", border: "none", borderRadius: 6, fontSize: 16, fontWeight: 600, cursor: "pointer",
+              }}>
+                {sending ? "Sending…" : "Send Me the Full Report →"}
               </button>
-
-              {/* Stripe badge */}
-              <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, color: "#aab7c4" }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5l-9-4z"/></svg>
-                <span style={{ fontSize: 12 }}>Powered by</span>
-                <svg width="40" height="16" viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6.8 10.9c0-.9.7-1.2 1.9-1.2 1.7 0 3.8.5 5.5 1.4V6.6C12.4 5.9 10.6 5.6 8.7 5.6c-4 0-6.7 2.1-6.7 5.5 0 5.4 7.4 4.5 7.4 6.8 0 1-.9 1.4-2.1 1.4-1.8 0-4.2-.8-6-1.8v4.6c2 .9 4 1.3 6 1.3 4.1 0 6.9-2 6.9-5.5-.1-5.8-7.3-4.8-7.3-7z" fill="#aab7c4"/>
-                  <path d="M28.8 5.9l-.3 1.4c-.9-.5-2.1-.8-3.3-.8-2.8 0-4.8 2.1-4.8 5.2s2 5.2 4.8 5.2c1.2 0 2.4-.3 3.3-.8l.3 1.4h3.4V5.9h-3.4zm-.3 8.5c-.6.4-1.3.6-2.1.6-1.7 0-2.8-1.2-2.8-2.9s1.1-2.9 2.8-2.9c.8 0 1.5.2 2.1.6v4.6z" fill="#aab7c4"/>
-                  <path d="M35.7 2.2h3.8v21h-3.8z" fill="#aab7c4"/>
-                  <path d="M51.8 5.6c-3.5 0-5.9 2.5-5.9 5.9 0 3.9 2.7 5.8 6.1 5.8 1.8 0 3.4-.4 4.7-1.3v-3.3c-1.3.8-2.7 1.2-4.1 1.2-1.6 0-2.9-.6-3.2-2.1h8v-1.4c0-3.3-1.8-4.8-5.6-4.8zm-2.4 4.7c.2-1.4 1.1-2.1 2.3-2.1s2 .7 2.1 2.1h-4.4z" fill="#aab7c4"/>
-                </svg>
-              </div>
-              <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
             </div>
           </>
-        ) : (
-          <div style={{ textAlign: "center", padding: "48px 24px" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div style={{ fontWeight: 700, fontSize: 20, color: "#0f172a", marginBottom: 8 }}>Payment successful!</div>
-            <div style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6 }}>Your full report is on its way to<br /><strong>{email}</strong></div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Stripe card form — must be rendered inside <Elements>
+function StripeForm({ onSent, prefillEmail, result, formData, onClose, clientSecret }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [email, setEmail] = useState(prefillEmail || "");
+  const [nameOnCard, setNameOnCard] = useState("");
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState(null);
+  const displayName = formData?.businessName || result?.business_name || "Your business";
+
+  async function handlePay() {
+    if (!stripe || !elements || !email || !nameOnCard) return;
+    setSending(true);
+    setError(null);
+    const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardNumberElement),
+        billing_details: { name: nameOnCard, email },
+      },
+    });
+    if (stripeError) {
+      setError(stripeError.message);
+      setSending(false);
+      return;
+    }
+    if (paymentIntent.status === "succeeded") {
+      try {
+        const res = await fetch("/api/send-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, result, formData }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to send report");
+        setDone(true);
+        setTimeout(() => onSent(email), 2000);
+      } catch (err) {
+        setError(err.message);
+        setSending(false);
+      }
+    }
+  }
+
+  const ready = stripe && elements && email && nameOnCard;
+
+  return (
+    <>
+      <ModalHeader displayName={displayName} onClose={onClose} isPromo={false} />
+      {done ? <SuccessState email={email} /> : (
+        <div style={{ padding: "20px 24px 24px" }}>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Email</label>
+            <input type="email" placeholder="you@company.com" value={email}
+              onChange={e => setEmail(e.target.value)} style={siStyle()} />
           </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Card information</label>
+            <div style={stripeElementContainer({ borderRadius: "6px 6px 0 0", borderBottom: "none" })}>
+              <CardNumberElement options={cardElementOpts} />
+            </div>
+            <div style={{ display: "flex" }}>
+              <div style={stripeElementContainer({ borderRadius: "0 0 0 6px", width: "50%", borderRight: "none" })}>
+                <CardExpiryElement options={cardElementOpts} />
+              </div>
+              <div style={stripeElementContainer({ borderRadius: "0 0 6px 0", width: "50%" })}>
+                <CardCvcElement options={cardElementOpts} />
+              </div>
+            </div>
+          </div>
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#697386", marginBottom: 5 }}>Name on card</label>
+            <input type="text" placeholder="Full name" value={nameOnCard}
+              onChange={e => setNameOnCard(e.target.value)} style={siStyle()} />
+          </div>
+          {error && <div style={{ marginBottom: 12, fontSize: 13, color: "#dc2626" }}>{error}</div>}
+          <button onClick={handlePay} disabled={sending || !ready} style={{
+            width: "100%", padding: "13px",
+            backgroundColor: sending ? "#6772e5" : !ready ? "#aab7c4" : "#635bff",
+            color: "#fff", border: "none", borderRadius: 6, fontSize: 16, fontWeight: 600,
+            cursor: sending || !ready ? "not-allowed" : "pointer", transition: "background-color 0.15s",
+          }}>
+            {sending ? (
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation: "spin 0.8s linear infinite" }}>
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+                Processing…
+              </span>
+            ) : "Pay $49"}
+          </button>
+          <StripeBadge />
+          <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+        </div>
+      )}
+    </>
+  );
+}
+
+// Payment modal — fetches clientSecret, wraps StripeForm in Elements
+function PaymentModal({ onClose, onSent, prefillEmail, result, formData }) {
+  const [clientSecret, setClientSecret] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ businessName: formData?.businessName, url: formData?.url }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) setFetchError(data.error);
+        else setClientSecret(data.clientSecret);
+      })
+      .catch(() => setFetchError("Failed to initialise payment"));
+  }, []);
+
+  return (
+    <div style={modalOverlay}>
+      <div style={modalBox}>
+        {fetchError ? (
+          <div style={{ padding: 32, textAlign: "center" }}>
+            <div style={{ color: "#dc2626", fontSize: 14, marginBottom: 12 }}>{fetchError}</div>
+            <button onClick={onClose} style={{ fontSize: 14, color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>Close</button>
+          </div>
+        ) : !clientSecret ? (
+          <div style={{ padding: 48, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>Loading payment…</div>
+        ) : (
+          <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <StripeForm onClose={onClose} onSent={onSent} prefillEmail={prefillEmail}
+              result={result} formData={formData} clientSecret={clientSecret} />
+          </Elements>
         )}
       </div>
     </div>
@@ -364,16 +417,23 @@ function ResultsView({ result, formData, onReset }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {showModal && (
+      {showModal && (promoUnlocked ? (
         <EmailModal
           onClose={() => setShowModal(false)}
           onSent={(email) => { setReportSentTo(email); setShowModal(false); }}
           prefillEmail={formData.email}
           result={result}
           formData={formData}
-          promoUnlocked={promoUnlocked}
         />
-      )}
+      ) : (
+        <PaymentModal
+          onClose={() => setShowModal(false)}
+          onSent={(email) => { setReportSentTo(email); setShowModal(false); }}
+          prefillEmail={formData.email}
+          result={result}
+          formData={formData}
+        />
+      ))}
 
       {/* Main Score */}
       <div style={{
