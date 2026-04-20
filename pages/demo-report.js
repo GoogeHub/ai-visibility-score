@@ -434,20 +434,26 @@ const FIXES = [
 function PriorityFixList() {
   return (
     <SectionCard title="Priority Fix List">
+      <style>{`
+        @media (max-width: 480px) {
+          .fix-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+          .fix-pills  { flex-direction: column !important; }
+        }
+      `}</style>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {FIXES.map((fix) => (
           <div key={fix.n} style={{ padding: "14px 16px", backgroundColor: "#f8fafc", borderRadius: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+            <div className="fix-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", paddingRight: 12 }}>
                 {fix.n}. {fix.title}
               </div>
-              <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+              <div className="fix-pills" style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                 <ImpactBadge level={fix.impact} />
                 <EffortBadge level={fix.effort} />
               </div>
             </div>
             <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6, margin: "0 0 10px" }}>{fix.detail}</p>
-            <div style={{ fontSize: 13, padding: "8px 12px", backgroundColor: "#eff6ff", borderRadius: 6, color: "#1e40af" }}>
+            <div style={{ fontSize: 13, padding: "8px 12px", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, color: "#1e40af" }}>
               <strong>Expected result: </strong>{fix.result}
             </div>
           </div>
@@ -459,15 +465,12 @@ function PriorityFixList() {
         marginTop: 20, backgroundColor: "#1143cc", borderRadius: 12, padding: "20px 22px",
       }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#93c5fd", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
-          If you only did 3 things:
+          Your potential
         </div>
-        <ol style={{ margin: "0 0 14px", paddingLeft: 20, display: "flex", flexDirection: "column", gap: 6 }}>
-          {["Define services clearly", "Add structured data", "Align content with real queries"].map((item, i) => (
-            <li key={i} style={{ fontSize: 14, color: "#e0e7ff", lineHeight: 1.6 }}>{item}</li>
-          ))}
-        </ol>
-        <div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
-          You could realistically move from{" "}
+        <div style={{ fontSize: 15, color: "#e0e7ff", lineHeight: 1.7, marginBottom: 14 }}>
+          If you actioned these priorities, you could realistically move from
+        </div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>
           <span style={{ color: "#fca5a5" }}>62</span>
           {" → "}
           <span style={{ color: "#86efac" }}>75+</span>
