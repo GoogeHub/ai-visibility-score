@@ -220,32 +220,39 @@ const QUERIES = [
 function QueryCard({ query }) {
   const isYes = query.recommend === true;
   const isInconsistent = query.recommend === null;
-  const bgColor = isYes ? "#f0fdf4" : isInconsistent ? "#fffbeb" : "#fef2f2";
-  const textColor = isYes ? "#16a34a" : isInconsistent ? "#d97706" : "#dc2626";
-  const icon = isYes ? "✅" : isInconsistent ? "⚠️" : "❌";
+
+  const statusBg     = isYes ? "#f0fdf4" : isInconsistent ? "#fffbeb" : "#fef2f2";
+  const statusBorder = isYes ? "#bbf7d0" : isInconsistent ? "#fde68a" : "#fecaca";
+  const statusColor  = isYes ? "#16a34a" : isInconsistent ? "#d97706" : "#dc2626";
+  const icon         = isYes ? "✅"       : isInconsistent ? "⚠️"      : "❌";
+
+  const missingBg     = isInconsistent ? "#fffbeb" : "#fef2f2";
+  const missingBorder = isInconsistent ? "#fde68a" : "#fecaca";
 
   return (
-    <div>
+    <div style={{
+      backgroundColor: "#fff", border: "1px solid #e2e8f0",
+      borderRadius: 12, padding: "20px",
+    }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
         Query {query.n} of {query.total}
       </div>
-      <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 12, fontStyle: "italic" }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 14, fontStyle: "italic" }}>
         "{query.intent}"
       </div>
 
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
-        padding: "12px 14px", backgroundColor: bgColor, borderRadius: 8, marginBottom: 14,
+        padding: "12px 14px", backgroundColor: statusBg,
+        border: `1px solid ${statusBorder}`, borderRadius: 8, marginBottom: 14,
       }}>
         <span style={{ fontSize: 20 }}>{icon}</span>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 15, color: textColor }}>
-            AI Recommendation Likelihood: {query.likelihood}
-          </div>
+        <div style={{ fontWeight: 700, fontSize: 15, color: statusColor }}>
+          AI Recommendation Likelihood: {query.likelihood}
         </div>
       </div>
 
-      <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: 12 }}>
+      <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: query.confidenceDriver || query.missing ? 12 : 0 }}>
         <strong>Why: </strong>{query.why}
       </div>
 
@@ -256,7 +263,7 @@ function QueryCard({ query }) {
       )}
 
       {query.missing && (
-        <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8 }}>
+        <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: missingBg, border: `1px solid ${missingBorder}`, borderRadius: 8 }}>
           <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>What's missing:</div>
           <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
             {query.missing.map((m, i) => (
@@ -271,22 +278,20 @@ function QueryCard({ query }) {
 
 function TargetQueryTest() {
   return (
-    <SectionCard title="Target Query Test">
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {QUERIES.map((q, i) => (
-          <div key={i}>
-            <QueryCard query={q} />
-            {i < QUERIES.length - 1 && <Divider />}
-          </div>
-        ))}
+    <div>
+      <div style={{ fontWeight: 800, fontSize: 18, color: "#1143cc", textAlign: "center", marginBottom: 16, letterSpacing: "-0.01em" }}>
+        Target Query Test
       </div>
 
-      {/* Overall coverage summary */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {QUERIES.map((q, i) => <QueryCard key={i} query={q} />)}
+      </div>
+
       <div style={{
-        marginTop: 24, backgroundColor: "#f8fafc", borderRadius: 12,
-        padding: "18px 20px", borderLeft: "4px solid #1143cc",
+        marginTop: 12, backgroundColor: "#fff", border: "1px solid #e2e8f0",
+        borderRadius: 12, padding: "18px 20px",
       }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1143cc", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#1143cc", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
           Overall Query Coverage
         </div>
         <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 6px" }}>
@@ -296,7 +301,7 @@ function TargetQueryTest() {
           The remaining opportunities are fixable — but currently limit how often AI will recommend you.
         </p>
       </div>
-    </SectionCard>
+    </div>
   );
 }
 
