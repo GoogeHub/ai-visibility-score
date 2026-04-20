@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 // ─── Shared visual helpers ─────────────────────────────────────────────────
 
@@ -507,6 +508,74 @@ function TechnicalAudit() {
   );
 }
 
+// ─── Share prompt ──────────────────────────────────────────────────────────
+
+function SharePrompt() {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    const shareData = {
+      title: "AI Score Scout",
+      text: "Find out if AI is recommending your business — or ignoring you. Free score, takes 30 seconds.",
+      url: "https://aiscorescout.com",
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (e) {
+        // user dismissed — do nothing
+      }
+    } else {
+      // Fallback: copy URL to clipboard
+      try {
+        await navigator.clipboard.writeText("https://aiscorescout.com");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      } catch (e) {
+        // clipboard also unavailable — silent fail
+      }
+    }
+  }
+
+  return (
+    <div style={{
+      marginTop: 12, textAlign: "center",
+      padding: "32px 24px",
+    }}>
+      <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 16px", lineHeight: 1.6 }}>
+        Know someone who should check their AI visibility?
+      </p>
+      <button
+        onClick={handleShare}
+        style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          padding: "13px 28px",
+          backgroundColor: "#1143cc", color: "#fff",
+          border: "none", borderRadius: 10,
+          fontSize: 15, fontWeight: 700, cursor: "pointer",
+          transition: "background-color 0.15s ease",
+        }}
+      >
+        {copied ? (
+          <>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Link copied!
+          </>
+        ) : (
+          <>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Send it to someone
+          </>
+        )}
+      </button>
+      <p style={{ fontSize: 12, color: "#cbd5e1", marginTop: 12 }}>
+        Free to use · No account required
+      </p>
+    </div>
+  );
+}
+
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function DemoReport() {
@@ -564,6 +633,7 @@ export default function DemoReport() {
           <AiRecognition />
           <PriorityFixList />
           <TechnicalAudit />
+          <SharePrompt />
         </div>
 
       </div>
