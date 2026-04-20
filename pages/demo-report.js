@@ -544,7 +544,7 @@ function SharePrompt() {
       padding: "32px 24px",
     }}>
       <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 16px", lineHeight: 1.6 }}>
-        Know someone who could use this?
+        Know someone who could use this tool?
       </p>
       <button
         onClick={handleShare}
