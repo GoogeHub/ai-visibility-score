@@ -544,7 +544,7 @@ function SharePrompt() {
       padding: "32px 24px",
     }}>
       <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 16px", lineHeight: 1.6 }}>
-        Know someone who should check their AI visibility?
+        Know someone who could use this?
       </p>
       <button
         onClick={handleShare}
@@ -569,9 +569,6 @@ function SharePrompt() {
           </>
         )}
       </button>
-      <p style={{ fontSize: 12, color: "#cbd5e1", marginTop: 12 }}>
-        Free to use · No account required
-      </p>
     </div>
   );
 }
