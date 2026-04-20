@@ -26,7 +26,7 @@ function SectionCard({ title, children }) {
     <div>
       <div style={{
         fontWeight: 800, fontSize: 18, color: "#1143cc",
-        textAlign: "center", marginBottom: 16, letterSpacing: "-0.01em",
+        textAlign: "center", marginTop: 25, marginBottom: 16, letterSpacing: "-0.01em",
       }}>
         {title}
       </div>
@@ -279,7 +279,7 @@ function QueryCard({ query }) {
 function TargetQueryTest() {
   return (
     <div>
-      <div style={{ fontWeight: 800, fontSize: 18, color: "#1143cc", textAlign: "center", marginBottom: 16, letterSpacing: "-0.01em" }}>
+      <div style={{ fontWeight: 800, fontSize: 18, color: "#1143cc", textAlign: "center", marginTop: 25, marginBottom: 16, letterSpacing: "-0.01em" }}>
         Target Query Test
       </div>
 
@@ -553,9 +553,7 @@ export default function DemoReport() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <ScoreSummary />
 
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", padding: "4px 0 0 2px" }}>
-            Full Report
-          </div>
+
 
           <IndustryBenchmark />
           <TargetQueryTest />
