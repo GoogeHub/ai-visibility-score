@@ -300,7 +300,7 @@ const GAPS = [
     title: "Service clarity",
     impact: "High",
     line1: "Your services are implied, not explicitly defined.",
-    line2: "AI struggles to extract clear "what you do" statements.",
+    line2: "AI struggles to extract clear 'what you do' statements.",
   },
   {
     n: 2,
