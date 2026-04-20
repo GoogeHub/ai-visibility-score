@@ -191,11 +191,10 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Fade-out overlay */}
+            {/* Fade-out overlay — bleeds past the card border + shadow */}
             <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0, height: 120,
-              background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 100%)",
-              borderRadius: "0 0 16px 16px",
+              position: "absolute", bottom: -32, left: -32, right: -32, height: 160,
+              background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 65%)",
               pointerEvents: "none",
             }} />
           </div>
