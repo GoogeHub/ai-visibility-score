@@ -80,39 +80,43 @@ function SubScoreRow({ label, score, description }) {
 
 function LockedCard({ title, teaser, children, unlocked }) {
   return (
-    <div style={{
-      backgroundColor: "#fff",
-      border: `1px solid ${unlocked ? "#d946ef" : "#e2e8f0"}`,
-      borderRadius: 12,
-      overflow: "hidden",
-      transition: "border-color 0.3s",
-    }}>
+    <div>
       <div style={{
-        padding: "20px 20px 16px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
+        fontWeight: 800, fontSize: 18, color: "#1143cc",
+        textAlign: "center", marginTop: 25, marginBottom: 16, letterSpacing: "-0.01em",
       }}>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 16, color: "#1143cc", marginBottom: 4 }}>{title}</div>
-          <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>{teaser}</div>
-        </div>
-        <span style={{ fontSize: 18, marginLeft: 12, flexShrink: 0 }}>
-          {unlocked ? "🔓" : "🔒"}
-        </span>
+        {title}
       </div>
-
-      {unlocked ? (
-        <div style={{ padding: "0 20px 20px", borderTop: "1px solid #f1f5f9", marginTop: 0 }}>
-          <div style={{ marginTop: 16 }}>{children}</div>
-        </div>
-      ) : (
-        <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-          {[80, 60, 45].map((w, i) => (
-            <div key={i} style={{ height: 10, width: `${w}%`, borderRadius: 99, backgroundColor: "#f1f5f9" }} />
-          ))}
-        </div>
-      )}
+      <div style={{
+        backgroundColor: "#fff",
+        border: `1px solid ${unlocked ? "#d946ef" : "#e2e8f0"}`,
+        borderRadius: 12,
+        overflow: "hidden",
+        transition: "border-color 0.3s",
+      }}>
+        {unlocked ? (
+          <div style={{ padding: "20px" }}>
+            {children}
+          </div>
+        ) : (
+          <>
+            <div style={{
+              padding: "16px 20px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}>
+              <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, flex: 1 }}>{teaser}</div>
+              <span style={{ fontSize: 18, flexShrink: 0 }}>🔒</span>
+            </div>
+            <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {[80, 60, 45].map((w, i) => (
+                <div key={i} style={{ height: 10, width: `${w}%`, borderRadius: 99, backgroundColor: "#f1f5f9" }} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -370,6 +374,52 @@ function PaymentModal({ onClose, onSent, prefillEmail, result, formData }) {
   );
 }
 
+function SharePrompt() {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    const shareData = {
+      title: "AI Score Scout",
+      text: "Find out if AI is recommending your business — or ignoring you. Free score, takes 30 seconds.",
+      url: "https://aiscorescout.com",
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch (e) {}
+    } else {
+      try {
+        await navigator.clipboard.writeText("https://aiscorescout.com");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      } catch (e) {}
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 12, textAlign: "center", padding: "32px 24px" }}>
+      <p style={{ fontSize: 15, color: "#64748b", margin: "0 0 16px", lineHeight: 1.6 }}>
+        Know someone who could use this tool?
+      </p>
+      <button onClick={handleShare} style={{
+        display: "inline-flex", alignItems: "center", gap: 8,
+        padding: "13px 28px", backgroundColor: "#1143cc", color: "#fff",
+        border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer",
+      }}>
+        {copied ? (
+          <>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Link copied!
+          </>
+        ) : (
+          <>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Send it to someone
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
+
 function ResultsView({ result, formData, onReset }) {
   const [showModal, setShowModal] = useState(false);
   const [reportSentTo, setReportSentTo] = useState(null);
@@ -381,16 +431,17 @@ function ResultsView({ result, formData, onReset }) {
   const aiRecognitionContent = () => {
     if (result.recognition_score === 0) {
       return (
-        <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.8 }}>
-          <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
-            Score: 0 / 100 — Not in AI training data
+        <div>
+          <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 12 }}>Score: 0 / 100 — Not currently recognised</div>
+          <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: 12 }}>
+            <strong>Explanation: </strong>AI systems don't yet associate your brand with a clear set of services or expertise areas. This doesn't mean you're invisible — but it does mean you're not being actively recalled or prioritised.
           </div>
-          <p style={{ margin: "0 0 12px" }}>
-            {displayName} doesn't appear in AI training data — and that's completely normal for the vast majority of businesses. AI models only "memorise" brands that appear repeatedly across the web in their training dataset: think Google, Atlassian, major law firms.
-          </p>
-          <p style={{ margin: 0 }}>
-            The good news: it doesn't stop AI from recommending you. Most AI tools people actually use — Perplexity, ChatGPT with browsing, Google AI Overviews — search the web in real time, not from memory. Your Web Signals score is what drives those recommendations. Training data recognition builds naturally as your online presence grows, and for most businesses, there's no shortcut needed — or available.
-          </p>
+          <div style={{ padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: 8, fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: 12 }}>
+            <strong>What this means: </strong>Most recommendations will come from general content interpretation, not brand recognition.
+          </div>
+          <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "14px 16px", fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
+            <strong style={{ color: "#15803d" }}>Opportunity: </strong>As your content becomes more structured and consistent, this score can improve quickly — especially compared to competitors who haven't addressed this yet.
+          </div>
         </div>
       );
     }
@@ -464,7 +515,7 @@ function ResultsView({ result, formData, onReset }) {
         textAlign: "center",
       }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>
-          {displayName}
+          Your Score
         </div>
         <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
           {result.web_score}
@@ -498,13 +549,9 @@ function ResultsView({ result, formData, onReset }) {
       </div>
 
       {/* Locked sections */}
-      <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", padding: "4px 0 0 2px" }}>
-        Full Report
-      </div>
-
       <LockedCard
         unlocked={showFull}
-        title="Industry Benchmark"
+        title="How you compare in AI visibility"
         teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
       >
         <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
@@ -522,6 +569,12 @@ function ResultsView({ result, formData, onReset }) {
             </div>
           </div>
         </div>
+        <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "16px 0 0" }}>
+          However, most competitors have the same weakness: they're not structured for AI understanding.
+        </p>
+        <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "14px 16px", marginTop: 16, fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
+          <strong style={{ color: "#15803d" }}>Opportunity: </strong>This means there's a real opportunity to move ahead quickly with the right changes.
+        </div>
       </LockedCard>
 
       <LockedCard
@@ -534,55 +587,64 @@ function ResultsView({ result, formData, onReset }) {
         }
       >
         {result.query_groups?.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {result.query_groups.map((group, i) => (
-              <div key={i}>
-                {result.query_groups.length > 1 && (
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {result.query_groups.map((group, i) => {
+              const isYes = group.would_recommend === true;
+              const statusBg = isYes ? "#f0fdf4" : "#fef2f2";
+              const statusBorder = isYes ? "#bbf7d0" : "#fecaca";
+              const statusColor = isYes ? "#16a34a" : "#dc2626";
+              const icon = isYes ? "✅" : "❌";
+              return (
+                <div key={i} style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "20px", marginBottom: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
                     Query {i + 1} of {result.query_groups.length}
                   </div>
-                )}
-                {/* Intent label */}
-                <div style={{ marginBottom: 10, fontSize: 13, color: "#64748b" }}>
-                  <span style={{ fontWeight: 600, color: "#0f172a" }}>Intent: </span>
-                  "{group.intent}"
-                  {group.queries?.length > 1 && (
-                    <span style={{ marginLeft: 6, color: "#94a3b8" }}>
-                      (merged {group.queries.length} similar queries)
-                    </span>
-                  )}
-                </div>
-                {/* Result */}
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  marginBottom: 10,
-                  padding: "12px 14px",
-                  backgroundColor: group.would_recommend ? "#f0fdf4" : "#fef2f2",
-                  borderRadius: 8,
-                }}>
-                  <span style={{ fontSize: 20 }}>{group.would_recommend ? "✅" : "❌"}</span>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>{group.likelihood}</div>
-                    <div style={{ fontSize: 13, color: "#64748b" }}>
-                      {group.would_recommend ? "AI would recommend you" : "AI would not recommend you"} based on your website content
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 14, fontStyle: "italic" }}>
+                    "{group.intent}"
+                    {group.queries?.length > 1 && (
+                      <span style={{ marginLeft: 6, color: "#94a3b8", fontWeight: 400, fontStyle: "normal" }}>
+                        (merged {group.queries.length} similar queries)
+                      </span>
+                    )}
+                  </div>
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "12px 14px", backgroundColor: statusBg,
+                    border: `1px solid ${statusBorder}`, borderRadius: 8, marginBottom: 14,
+                  }}>
+                    <span style={{ fontSize: 20 }}>{icon}</span>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: statusColor }}>
+                      {group.likelihood}
                     </div>
                   </div>
-                </div>
-                <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: group.content_fix ? 10 : 0 }}>
-                  <strong>Why:</strong> {group.reason}
-                </div>
-                {group.content_fix && (
-                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, padding: "10px 14px", backgroundColor: "#fffbeb", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
-                    <strong>Quick fix:</strong> {group.content_fix}
+                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: group.content_fix ? 12 : 0 }}>
+                    <strong>Why:</strong> {group.reason}
                   </div>
-                )}
-                {i < result.query_groups.length - 1 && (
-                  <div style={{ borderTop: "1px solid #f1f5f9", marginTop: 20 }} />
-                )}
-              </div>
-            ))}
+                  {group.content_fix && (
+                    <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, padding: "10px 14px", backgroundColor: statusBg, border: `1px solid ${statusBorder}`, borderRadius: 8 }}>
+                      <strong>Quick fix:</strong> {group.content_fix}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {(() => {
+              const positiveCount = result.query_groups.filter(g => g.would_recommend).length;
+              const total = result.query_groups.length;
+              return (
+                <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "18px 20px", marginTop: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#1143cc", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
+                    Overall Query Coverage
+                  </div>
+                  <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 6px" }}>
+                    You're <strong>strongly positioned in {positiveCount} of {total}</strong> key area{total !== 1 ? "s" : ""}.
+                  </p>
+                  <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
+                    The remaining opportunities are fixable — but currently limit how often AI will recommend you.
+                  </p>
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>
@@ -593,9 +655,12 @@ function ResultsView({ result, formData, onReset }) {
 
       <LockedCard
         unlocked={showFull}
-        title="Content Gap Analysis"
+        title="What AI can't clearly understand (yet)"
         teaser="The specific language and topics AI is missing from your site — and exactly how to add them."
       >
+        <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: "0 0 16px" }}>
+          These are the gaps preventing AI from confidently recommending your business:
+        </p>
         {result.content_gaps?.length > 0 ? (
           <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 10 }}>
             {result.content_gaps.map((gap, i) => (
@@ -605,11 +670,14 @@ function ResultsView({ result, formData, onReset }) {
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>No content gaps detected.</div>
         )}
+        <div style={{ backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "14px 16px", marginTop: 16, fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
+          These gaps don't require a rebuild — just clearer structure and language.
+        </div>
       </LockedCard>
 
       <LockedCard
         unlocked={showFull}
-        title="AI Recognition"
+        title='Are you "known" to AI?'
         teaser="Is your business already known by AI — and does it matter for you?"
       >
         {aiRecognitionContent()}
@@ -620,13 +688,19 @@ function ResultsView({ result, formData, onReset }) {
         title="Priority Fix List"
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
       >
+        <style>{`
+          @media (max-width: 480px) {
+            .fix-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+            .fix-pills  { flex-direction: column !important; }
+          }
+        `}</style>
         {result.priority_fixes?.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {result.priority_fixes.map((fix, i) => (
               <div key={i} style={{ padding: "12px 14px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <div className="fix-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{fix.title}</div>
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div className="fix-pills" style={{ display: "flex", gap: 6 }}>
                     <span style={{
                       fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99,
                       backgroundColor: fix.impact === "High" ? "#fef2f2" : "#fffbeb",
@@ -649,7 +723,7 @@ function ResultsView({ result, formData, onReset }) {
 
       <LockedCard
         unlocked={showFull}
-        title="Technical Audit"
+        title="Technical signals affecting AI visibility"
         teaser="Behind-the-scenes signals that affect how AI tools crawl and interpret your site."
       >
         {result.technical_issues?.length > 0 ? (
@@ -661,6 +735,9 @@ function ResultsView({ result, formData, onReset }) {
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>No technical issues detected.</div>
         )}
+        <div style={{ backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "14px 16px", marginTop: 16, fontSize: 14, color: "#334155" }}>
+          These are easy wins that support the broader content improvements above.
+        </div>
       </LockedCard>
 
       {/* Unlock CTA — only shown before payment */}
@@ -697,6 +774,7 @@ function ResultsView({ result, formData, onReset }) {
         </div>
       )}
 
+      <SharePrompt />
 
     </div>
   );
