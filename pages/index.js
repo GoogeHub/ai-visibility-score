@@ -199,7 +199,7 @@ export default function Landing() {
             }} />
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 28 }}>
+          <div style={{ textAlign: "center", marginTop: 28, position: "relative", zIndex: 1 }}>
             <a
               href="/api/preview-email"
               target="_blank"
