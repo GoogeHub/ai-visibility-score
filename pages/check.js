@@ -617,9 +617,14 @@ function ResultsView({ result, formData, onReset }) {
                       {group.likelihood}
                     </div>
                   </div>
-                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: group.content_fix ? 12 : 0 }}>
+                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: group.confidence_driver || group.content_fix ? 12 : 0 }}>
                     <strong>Why:</strong> {group.reason}
                   </div>
+                  {group.confidence_driver && (
+                    <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, color: "#334155", lineHeight: 1.6 }}>
+                      <strong>Confidence driver: </strong>{group.confidence_driver}
+                    </div>
+                  )}
                   {group.content_fix && (
                     <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, padding: "10px 14px", backgroundColor: statusBg, border: `1px solid ${statusBorder}`, borderRadius: 8 }}>
                       <strong>Quick fix:</strong> {group.content_fix}
@@ -662,11 +667,26 @@ function ResultsView({ result, formData, onReset }) {
           These are the gaps preventing AI from confidently recommending your business:
         </p>
         {result.content_gaps?.length > 0 ? (
-          <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {result.content_gaps.map((gap, i) => (
-              <li key={i} style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{gap}</li>
+              typeof gap === "string" ? (
+                <div key={i} style={{ padding: "12px 14px", backgroundColor: "#f8fafc", borderRadius: 8, fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{gap}</div>
+              ) : (
+                <div key={i} style={{ padding: "14px 16px", backgroundColor: "#f8fafc", borderRadius: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{i + 1}. {gap.title}</div>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 99,
+                      backgroundColor: gap.impact === "High" ? "#fef2f2" : "#fffbeb",
+                      color: gap.impact === "High" ? "#dc2626" : "#d97706",
+                    }}>{gap.impact} impact</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6, margin: "0 0 4px" }}>{gap.line1}</p>
+                  <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, margin: 0 }}>{gap.line2}</p>
+                </div>
+              )
             ))}
-          </ul>
+          </div>
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>No content gaps detected.</div>
         )}
@@ -712,7 +732,12 @@ function ResultsView({ result, formData, onReset }) {
                     }}>{fix.effort} effort</span>
                   </div>
                 </div>
-                <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.5 }}>{fix.detail}</div>
+                <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.5, marginBottom: fix.expected_result ? 10 : 0 }}>{fix.detail}</div>
+                {fix.expected_result && (
+                  <div style={{ fontSize: 13, padding: "8px 12px", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 6, color: "#1e40af" }}>
+                    <strong>Expected result: </strong>{fix.expected_result}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -727,11 +752,24 @@ function ResultsView({ result, formData, onReset }) {
         teaser="Behind-the-scenes signals that affect how AI tools crawl and interpret your site."
       >
         {result.technical_issues?.length > 0 ? (
-          <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {result.technical_issues.map((issue, i) => (
-              <li key={i} style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{issue}</li>
+              typeof issue === "string" ? (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
+                  <span style={{ fontSize: 16 }}>⚠️</span>
+                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{issue}</div>
+                </div>
+              ) : (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
+                  <span style={{ fontSize: 16 }}>⚠️</span>
+                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>
+                    <strong>{issue.issue}</strong>
+                    <span style={{ color: "#64748b" }}> → {issue.effect}</span>
+                  </div>
+                </div>
+              )
             ))}
-          </ul>
+          </div>
         ) : (
           <div style={{ fontSize: 14, color: "#64748b" }}>No technical issues detected.</div>
         )}
