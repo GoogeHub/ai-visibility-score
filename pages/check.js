@@ -484,24 +484,16 @@ function ResultsView({ result, formData, onReset }) {
       {/* Success banner — shown after payment/send */}
       {reportSentTo && (
         <div style={{
-          backgroundColor: "#f0fdf4",
-          border: "1px solid #bbf7d0",
-          borderRadius: 16,
-          padding: "20px 24px",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: 14,
+          backgroundColor: "#1143cc",
+          margin: "0 -24px",
+          padding: "12px 24px",
+          textAlign: "center",
         }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 2 }}>
+            {promoUnlocked ? "✓ Report sent!" : "✓ Payment confirmed — report sent!"}
           </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: "#15803d", marginBottom: 3 }}>
-              {promoUnlocked ? "Report sent!" : "Payment confirmed — report sent!"}
-            </div>
-            <div style={{ fontSize: 13, color: "#166534", lineHeight: 1.5 }}>
-              A copy has been emailed to <strong>{reportSentTo}</strong>. Your full report is unlocked below.
-            </div>
+          <div style={{ fontSize: 13, color: "#bfdbfe" }}>
+            A copy has been emailed to <strong style={{ color: "#fff" }}>{reportSentTo}</strong>
           </div>
         </div>
       )}
