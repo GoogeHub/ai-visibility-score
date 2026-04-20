@@ -4,7 +4,6 @@ import { useState } from "react";
 export default function Landing() {
   const router = useRouter();
   const [btnHover, setBtnHover] = useState(false);
-  const [btnHover2, setBtnHover2] = useState(false);
 
   const ctaButton = (hover) => ({
     padding: "16px 36px",
@@ -149,14 +148,6 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <div style={{ textAlign: "center", marginTop: 40 }}>
-            <a href="/api/preview-email" target="_blank" rel="noopener noreferrer" style={{
-              fontSize: 15, fontWeight: 600, color: "#1143cc", textDecoration: "none",
-              borderBottom: "2px solid #1143cc", paddingBottom: 2,
-            }}>
-              See a sample report →
-            </a>
-          </div>
         </div>
       </div>
 
@@ -173,49 +164,63 @@ export default function Landing() {
             A clear score with actionable insights — not a vague audit.
           </p>
 
-          {/* Mock report card */}
-          <div style={{
-            border: "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-          }}>
-            {/* Score header */}
-            <div style={{ backgroundColor: "#fcf6f6", padding: "32px 28px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Sample Business</div>
-              <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
-                62<span style={{ fontSize: 32, fontWeight: 600, color: "#94a3b8" }}> / 100</span>
+          {/* Mock report card — fades out to suggest more content */}
+          <div style={{ position: "relative" }}>
+            <div style={{
+              border: "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+            }}>
+              {/* Score header */}
+              <div style={{ backgroundColor: "#fcf6f6", padding: "32px 28px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Sample Business</div>
+                <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
+                  62<span style={{ fontSize: 32, fontWeight: 600, color: "#94a3b8" }}> / 100</span>
+                </div>
+                <div style={{ marginTop: 12, display: "inline-block", background: "#eff6ff", color: "#2563eb", fontWeight: 700, fontSize: 14, padding: "5px 16px", borderRadius: 99 }}>Visible</div>
+                {/* Score bar */}
+                <div style={{ position: "relative", height: 10, borderRadius: 99, background: "linear-gradient(to right, #1e3a8a, #d946ef)", margin: "20px auto 4px", maxWidth: 360 }}>
+                  <div style={{ position: "absolute", left: "62%", top: "50%", transform: "translate(-50%, -50%)", width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #1e3a8a", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
+                </div>
               </div>
-              <div style={{ marginTop: 12, display: "inline-block", background: "#eff6ff", color: "#2563eb", fontWeight: 700, fontSize: 14, padding: "5px 16px", borderRadius: 99 }}>Visible</div>
-              {/* Mini score bar */}
-              <div style={{ position: "relative", height: 10, borderRadius: 99, background: "linear-gradient(to right, #1e3a8a, #d946ef)", margin: "20px auto 4px", maxWidth: 360 }}>
-                <div style={{ position: "absolute", left: "62%", top: "50%", transform: "translate(-50%, -50%)", width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #1e3a8a", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
+
+              {/* Explanation paragraph — same as real report */}
+              <div style={{ padding: "28px 28px 40px", backgroundColor: "#fff" }}>
+                <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, margin: 0 }}>
+                  Sample Business has a solid web presence and communicates its core offering with reasonable clarity. AI systems can broadly understand what you do and who you serve, and would mention you in relevant conversations — but there are gaps that reduce confidence in specific service areas. A few targeted fixes to your content structure and entity signals would push you into a consistently recommended position.
+                </p>
               </div>
             </div>
 
-            {/* Preview sections */}
-            <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
-              {[
-                { label: "Industry Benchmark", preview: "You're scoring above the industry average of ~55 for digital agencies." },
-                { label: "Target Query Test", preview: "2 of 3 searches — AI would recommend you for brand-related queries but not for service-specific searches." },
-                { label: "Content Gap Analysis", preview: "3 gaps identified — missing pricing context, outcome-led case studies, and service page depth." },
-                { label: "Priority Fix List", preview: "Top fix: Add a structured services page. High impact, medium effort." },
-              ].map(({ label, preview }) => (
-                <div key={label} style={{ padding: "14px 16px", backgroundColor: "#f8fafc", borderRadius: 10 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>{preview}</div>
-                </div>
-              ))}
-            </div>
+            {/* Fade-out overlay */}
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0, height: 120,
+              background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 100%)",
+              borderRadius: "0 0 16px 16px",
+              pointerEvents: "none",
+            }} />
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 36 }}>
-            <button
-              onClick={() => router.push("/check")}
-              style={ctaButton(btnHover2)}
-              onMouseEnter={() => setBtnHover2(true)}
-              onMouseLeave={() => setBtnHover2(false)}
+          <div style={{ textAlign: "center", marginTop: 28 }}>
+            <a
+              href="/api/preview-email"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                padding: "14px 32px",
+                backgroundColor: "#e6eaf5",
+                color: "#1143cc",
+                border: "none",
+                borderRadius: 10,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                textDecoration: "none",
+                transition: "background-color 0.15s ease",
+              }}
             >
-              Run your own test →
-            </button>
+              See Sample Report →
+            </a>
           </div>
         </div>
       </div>
