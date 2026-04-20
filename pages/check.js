@@ -482,6 +482,16 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       ))}
 
 
+      {/* Report header */}
+      <div style={{ marginBottom: 28, textAlign: "center" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
+          AI Visibility Report
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1143cc", margin: 0, letterSpacing: "-0.01em" }}>
+          {displayName}
+        </h1>
+      </div>
+
       {/* Main Score */}
       <div style={{
         backgroundColor: "#fff",
