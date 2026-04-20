@@ -23,16 +23,22 @@ function ScoreBar({ score }) {
 
 function SectionCard({ title, children }) {
   return (
-    <div style={{
-      backgroundColor: "#fff",
-      border: "1px solid #e2e8f0",
-      borderRadius: 12,
-      overflow: "hidden",
-    }}>
-      <div style={{ padding: "20px 24px 16px", borderBottom: "1px solid #f1f5f9" }}>
-        <div style={{ fontWeight: 700, fontSize: 16, color: "#1143cc" }}>{title}</div>
+    <div>
+      <div style={{
+        fontWeight: 800, fontSize: 18, color: "#1143cc",
+        textAlign: "center", marginBottom: 16, letterSpacing: "-0.01em",
+      }}>
+        {title}
       </div>
-      <div style={{ padding: "20px 24px 24px" }}>{children}</div>
+      <div style={{
+        backgroundColor: "#fff",
+        border: "1px solid #e2e8f0",
+        borderRadius: 12,
+        overflow: "hidden",
+        padding: "20px 24px 24px",
+      }}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -91,7 +97,7 @@ function ScoreSummary() {
       borderRadius: 16, padding: "32px 24px 28px", textAlign: "center",
     }}>
       <div style={{ fontSize: 15, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>
-        {DEMO.businessName}
+        Your Score
       </div>
       <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
         {DEMO.score}
@@ -244,13 +250,13 @@ function QueryCard({ query }) {
       </div>
 
       {query.confidenceDriver && (
-        <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: "#f0fdf4", borderRadius: 8, borderLeft: "3px solid #16a34a", color: "#334155", lineHeight: 1.6 }}>
+        <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, color: "#334155", lineHeight: 1.6 }}>
           <strong>Confidence driver: </strong>{query.confidenceDriver}
         </div>
       )}
 
       {query.missing && (
-        <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: "#fffbeb", borderRadius: 8, borderLeft: "3px solid #f59e0b" }}>
+        <div style={{ fontSize: 14, padding: "10px 14px", backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8 }}>
           <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>What's missing:</div>
           <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
             {query.missing.map((m, i) => (
@@ -530,7 +536,7 @@ export default function DemoReport() {
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 24px 80px" }}>
 
-        <div style={{ marginBottom: 28 }}>
+        <div style={{ marginBottom: 28, textAlign: "center" }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
             AI Visibility Report
           </div>
