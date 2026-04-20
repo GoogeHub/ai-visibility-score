@@ -72,6 +72,20 @@ Return ONLY valid JSON. Important rules:
     const schemaMatches = [...(rawHtml || "").matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
     const schemaData = schemaMatches.map(m => { try { return JSON.parse(m[1]); } catch { return null; } }).filter(Boolean);
 
+    // Extract favicon URL from raw HTML
+    let faviconUrl = null;
+    if (rawHtml) {
+      const faviconMatch =
+        rawHtml.match(/<link[^>]*rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["']/i) ||
+        rawHtml.match(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'][^"']*icon[^"']*["']/i);
+      if (faviconMatch) {
+        const href = faviconMatch[1];
+        faviconUrl = href.startsWith("http") ? href : href.startsWith("/") ? `${baseUrl}${href}` : `${baseUrl}/${href}`;
+      } else {
+        faviconUrl = `${baseUrl}/favicon.ico`;
+      }
+    }
+
     let recognition = { recognition_score: 0, known_for: "Not found in AI training data", confidence: "Not recognised" };
     if (recognitionResult.status === "fulfilled") {
       const raw = recognitionResult.value?.content?.[0]?.text || "{}";
@@ -115,6 +129,7 @@ ${llmsTxt ? llmsTxt.slice(0, 400) : "Not present"}
 
 Return ONLY valid JSON:
 {
+  "inferred_name": (the actual business name as it appears on the website — read from site content such as title tags, headings, or logo text, not from what the user provided),
   "web_score": (0-100, based on website signals: content quality, schema markup, AI crawler access, llms.txt),
   "web_label": ("Invisible", "Emerging", "Visible", or "Strong"),
   "explanation": (2-3 plain-English sentences summarising their AI visibility situation, referring to them by business name if known. Be direct and diagnostic — lead with the core issue, not a compliment),
@@ -254,6 +269,8 @@ Return ONLY valid JSON:
     }).catch(() => {}); // fire and forget — never block the main response
 
     res.status(200).json({
+      inferred_name: analysis.inferred_name || businessName || null,
+      favicon_url: faviconUrl || null,
       web_score: analysis.web_score,
       web_label: analysis.web_label,
       recognition_score: recognition.recognition_score,

@@ -484,11 +484,19 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
 
       {/* Report header */}
       <div style={{ marginBottom: 28, textAlign: "center" }}>
+        {result.favicon_url && (
+          <img
+            src={result.favicon_url}
+            alt=""
+            onError={e => { e.target.style.display = "none"; }}
+            style={{ width: 40, height: 40, borderRadius: 8, objectFit: "contain", display: "block", margin: "0 auto 12px" }}
+          />
+        )}
         <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
           AI Visibility Report
         </div>
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1143cc", margin: 0, letterSpacing: "-0.01em" }}>
-          {displayName}
+          {result.inferred_name || displayName}
         </h1>
       </div>
 
