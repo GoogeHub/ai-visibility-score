@@ -420,7 +420,7 @@ function SharePrompt() {
   );
 }
 
-function ResultsView({ result, formData, onReset }) {
+function ResultsView({ result, formData, onReset, onReportSent }) {
   const [showModal, setShowModal] = useState(false);
   const [reportSentTo, setReportSentTo] = useState(null);
   const [showFull, setShowFull] = useState(false);
@@ -466,7 +466,7 @@ function ResultsView({ result, formData, onReset }) {
       {showModal && (promoUnlocked ? (
         <EmailModal
           onClose={() => setShowModal(false)}
-          onSent={(email) => { setReportSentTo(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          onSent={(email) => { setReportSentTo(email); onReportSent(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
           prefillEmail={formData.email}
           result={result}
           formData={formData}
@@ -474,29 +474,13 @@ function ResultsView({ result, formData, onReset }) {
       ) : (
         <PaymentModal
           onClose={() => setShowModal(false)}
-          onSent={(email) => { setReportSentTo(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          onSent={(email) => { setReportSentTo(email); onReportSent(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
           prefillEmail={formData.email}
           result={result}
           formData={formData}
         />
       ))}
 
-      {/* Success banner — shown after payment/send */}
-      {reportSentTo && (
-        <div style={{
-          backgroundColor: "#1143cc",
-          margin: "0 -24px",
-          padding: "12px 24px",
-          textAlign: "center",
-        }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 2 }}>
-            {promoUnlocked ? "✓ Report sent!" : "✓ Payment confirmed — report sent!"}
-          </div>
-          <div style={{ fontSize: 13, color: "#bfdbfe" }}>
-            A copy has been emailed to <strong style={{ color: "#fff" }}>{reportSentTo}</strong>
-          </div>
-        </div>
-      )}
 
       {/* Main Score */}
       <div style={{
@@ -826,6 +810,7 @@ export default function Check() {
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState(null);
+  const [reportSentTo, setReportSentTo] = useState(null);
 
   const VALID_PROMO_CODES = ["SCOUT2025"];
 
@@ -917,7 +902,23 @@ export default function Check() {
         />
       </nav>
 
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "60px 24px 80px" }}>
+      {/* Success banner — full width, butted against nav */}
+      {reportSentTo && (
+        <div style={{
+          backgroundColor: "#1143cc",
+          padding: "12px 24px",
+          textAlign: "center",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 2 }}>
+            ✓ Report sent!
+          </div>
+          <div style={{ fontSize: 13, color: "#bfdbfe" }}>
+            A copy has been emailed to <strong style={{ color: "#fff" }}>{reportSentTo}</strong>
+          </div>
+        </div>
+      )}
+
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: `${reportSentTo ? "32px" : "60px"} 24px 80px` }}>
 
         {!result ? (
           <>
@@ -1123,7 +1124,7 @@ export default function Check() {
             </div>
           </>
         ) : (
-          <ResultsView result={result} formData={form} onReset={handleReset} />
+          <ResultsView result={result} formData={form} onReset={handleReset} onReportSent={setReportSentTo} />
         )}
 
       </div>
