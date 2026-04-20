@@ -91,7 +91,7 @@ Return ONLY valid JSON. Important rules:
         headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
-          max_tokens: 1200,
+          max_tokens: 1800,
           temperature: 0,
           messages: [{
             role: "user",
@@ -116,21 +116,43 @@ ${llmsTxt ? llmsTxt.slice(0, 400) : "Not present"}
 Return ONLY valid JSON:
 {
   "web_score": (0-100, based on website signals: content quality, schema markup, AI crawler access, llms.txt),
-  "web_label": ("Poor", "Fair", "Good", or "Excellent"),
-  "explanation": (2-3 plain-English sentences summarising their AI visibility situation, referring to them by business name if known),
-  "content_gaps": [3-4 specific topics, language patterns, or information types that are missing from the site that AI needs to understand and recommend them],
-  "priority_fixes": [
-    { "title": "short fix title", "impact": "High or Medium", "effort": "Low, Medium, or High", "detail": "one sentence on what to do" },
-    { "title": "...", "impact": "...", "effort": "...", "detail": "..." },
-    { "title": "...", "impact": "...", "effort": "...", "detail": "..." },
-    { "title": "...", "impact": "...", "effort": "...", "detail": "..." }
+  "web_label": ("Invisible", "Emerging", "Visible", or "Strong"),
+  "explanation": (2-3 plain-English sentences summarising their AI visibility situation, referring to them by business name if known. Be direct and diagnostic — lead with the core issue, not a compliment),
+  "holding_back": (array of exactly 3 short bullet strings — the specific reasons this business is not being consistently recommended by AI. Each should be a concise noun phrase, e.g. "No structured definition of services"),
+  "what_this_means": (1 punchy sentence explaining the real-world consequence of this score — e.g. "You may rank well on Google, but still be invisible in AI-driven recommendations"),
+  "content_gaps": [
+    {
+      "title": (short gap name, e.g. "Service clarity"),
+      "impact": ("High" or "Medium"),
+      "line1": (one sentence: what is missing or unclear on the site),
+      "line2": (one sentence: why this matters for AI — what AI struggles to do as a result)
+    }
   ],
-  "technical_issues": [2-3 specific technical findings about schema markup, robots.txt, llms.txt, or AI crawler access],
+  "priority_fixes": [
+    {
+      "title": "short fix title",
+      "impact": "High or Medium",
+      "effort": "Low, Medium, or High",
+      "detail": "one sentence on what to do",
+      "expected_result": "one sentence on the likely outcome if this fix is implemented — what will change in how AI finds or recommends them"
+    }
+  ],
+  "technical_issues": [
+    {
+      "issue": (short name of the technical problem, e.g. "Missing llms.txt"),
+      "effect": (short consequence phrase, e.g. "reduces AI guidance")
+    }
+  ],
+  "score_uplift": (a realistic estimated score 0-100 that this business could reach if they implemented the priority fixes — should be meaningfully higher than web_score but not unrealistically optimistic),
   "benchmark_note": (1 sentence estimating how this score compares to typical businesses in their industry — must be consistent with benchmark_avg),
   "benchmark_avg": (a single estimated average score number 0-100 for their industry — must match benchmark_note)
 }
 
-No extra text. Just the JSON.`
+Rules:
+- content_gaps: return exactly 3-4 objects
+- priority_fixes: return exactly 4 objects, ordered High impact first
+- technical_issues: return exactly 2-3 objects
+- No extra text. Just the JSON.`
           }]
         })
       }).then(r => r.json()),
@@ -172,7 +194,8 @@ Return ONLY valid JSON:
       "would_recommend": (true or false),
       "likelihood": ("Very likely", "Somewhat likely", "Unlikely", or "Very unlikely"),
       "reason": (1-2 sentences based on what is or isn't evident in the website content),
-      "content_fix": (single most impactful content change to improve this result — only include if would_recommend is false, otherwise null)
+      "confidence_driver": (if would_recommend is true: a short phrase naming the specific content signal driving AI confidence, e.g. "Repeated case studies using consistent terminology". If would_recommend is false: null),
+      "content_fix": (if would_recommend is false: single most impactful content change to improve this result. If would_recommend is true: null)
     }
   ]
 }`
@@ -237,9 +260,12 @@ Return ONLY valid JSON:
       confidence: recognition.confidence,
       known_for: recognition.known_for,
       explanation: analysis.explanation,
+      holding_back: analysis.holding_back || [],
+      what_this_means: analysis.what_this_means || null,
       content_gaps: analysis.content_gaps || [],
       priority_fixes: analysis.priority_fixes || [],
       technical_issues: analysis.technical_issues || [],
+      score_uplift: analysis.score_uplift || null,
       benchmark_note: analysis.benchmark_note || null,
       benchmark_avg: analysis.benchmark_avg || null,
       query_groups: queryGroups,
