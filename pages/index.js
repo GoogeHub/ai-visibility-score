@@ -186,7 +186,7 @@ export default function Landing() {
               {/* Explanation paragraph — same as real report */}
               <div style={{ padding: "28px 28px 40px", backgroundColor: "#fff" }}>
                 <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, margin: 0 }}>
-                  Spacely Space Sprockets is recognised by AI — but primarily as a fictional brand from The Jetsons, not a commercial supplier. Your product range, manufacturing capabilities, and customer applications aren't structured in a way AI can confidently extract and repeat in a buying context. Until that changes, competitors with less name recognition but better-structured content will be recommended ahead of you.
+                  Spacely Space Sprockets has an established web presence, but AI systems are struggling to position you as a commercial supplier. Your product range, manufacturing capabilities, and customer applications aren't structured in a way AI can confidently extract and repeat in a buying context. Until that changes, competitors with better-structured content will be recommended ahead of you.
                 </p>
               </div>
             </div>
