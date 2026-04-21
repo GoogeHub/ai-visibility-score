@@ -78,7 +78,7 @@ function SubScoreRow({ label, score, description }) {
   );
 }
 
-function LockedCard({ title, teaser, children, unlocked }) {
+function LockedCard({ title, teaser, children, unlocked, badge }) {
   return (
     <div>
       <div style={{
@@ -107,7 +107,16 @@ function LockedCard({ title, teaser, children, unlocked }) {
               gap: 10,
             }}>
               <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, flex: 1 }}>{teaser}</div>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>🔒</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                <span style={{ fontSize: 18 }}>🔒</span>
+                {badge && (
+                  <span style={{
+                    fontSize: 11, fontWeight: 700, color: "#1143cc",
+                    backgroundColor: "#eff6ff", border: "1px solid #bfdbfe",
+                    borderRadius: 99, padding: "2px 8px", whiteSpace: "nowrap",
+                  }}>{badge}</span>
+                )}
+              </div>
             </div>
             <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
               {[80, 60, 45].map((w, i) => (
@@ -574,6 +583,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="Target Query Test"
+        badge={result.query_groups?.length > 0 ? `${result.query_groups.filter(g => !g.would_recommend).length} gaps` : undefined}
         teaser={
           formData.targetQueries?.filter(Boolean).length > 0
             ? `Does AI recommend you for the ${formData.targetQueries.filter(Boolean).length} search${formData.targetQueries.filter(Boolean).length > 1 ? "es" : ""} you care about?`
@@ -655,6 +665,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="What AI can't clearly understand (yet)"
+        badge={result.content_gaps?.length > 0 ? `${result.content_gaps.length} gaps` : undefined}
         teaser="The specific language and topics AI is missing from your site — and exactly how to add them."
       >
         <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: "0 0 16px" }}>
@@ -700,6 +711,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="Priority Fix List"
+        badge={result.priority_fixes?.length > 0 ? `${result.priority_fixes.length} fixes` : undefined}
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
       >
         <style>{`
@@ -743,6 +755,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="Technical signals affecting AI visibility"
+        badge={result.technical_issues?.length > 0 ? `${result.technical_issues.length} issues` : undefined}
         teaser="Behind-the-scenes signals that affect how AI tools crawl and interpret your site."
       >
         {result.technical_issues?.length > 0 ? (
