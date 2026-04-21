@@ -83,10 +83,10 @@ function CalloutBox({ children, color = "#fffbeb", borderColor = "#fde68a" }) {
 // ─── Demo data ─────────────────────────────────────────────────────────────
 
 const DEMO = {
-  businessName: "Studio Bravo",
-  score: 62,
-  industry: "Digital Agency",
-  benchmarkAvg: 55,
+  businessName: "Spacely Space Sprockets",
+  score: 47,
+  industry: "Space Manufacturing",
+  benchmarkAvg: 52,
 };
 
 // ─── Sections ──────────────────────────────────────────────────────────────
@@ -109,20 +109,19 @@ function ScoreSummary() {
 
       <div style={{
         display: "inline-block", marginTop: 12, padding: "6px 20px",
-        backgroundColor: "#fef2f2", color: "#dc2626",
+        backgroundColor: "#fffbeb", color: "#d97706",
         borderRadius: 99, fontWeight: 700, fontSize: 15,
       }}>
-        At risk of being overlooked by AI
+        Emerging
       </div>
 
       {/* Summary */}
       <div style={{ textAlign: "left", marginTop: 28, borderTop: "1px solid #f1f5f9", paddingTop: 24 }}>
         <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.8, margin: "0 0 16px" }}>
-          Your site has solid technical foundations, but AI systems are unlikely to recommend you consistently.
+          Spacely Space Sprockets is known — but for the wrong reasons. AI systems recognise the brand primarily as a fictional entity from 21st-century entertainment archives, not as a commercial supplier of precision sprocket components.
         </p>
         <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.8, margin: "0 0 20px" }}>
-          The main issue isn't SEO — it's clarity. Your services, expertise, and positioning aren't
-          expressed in a way AI can reliably interpret and repeat.
+          The core problem isn't awareness — it's commercial clarity. Your product range, manufacturing capabilities, and customer applications aren't structured in a way AI can confidently extract and repeat in a buying context.
         </p>
 
         <div style={{ backgroundColor: "#f8fafc", borderRadius: 10, padding: "16px 20px", marginBottom: 20 }}>
@@ -130,19 +129,18 @@ function ScoreSummary() {
             What's holding you back
           </div>
           <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 8 }}>
-            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>No structured definition of your services</li>
-            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Weak alignment with real customer queries</li>
-            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Limited signals that reinforce your expertise in key areas</li>
+            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>No product specifications AI can parse or reference</li>
+            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Brand recognition skewed toward fictional association, not commercial intent</li>
+            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Competitor Cogswell's Cogs has more structured, AI-readable content</li>
           </ul>
         </div>
 
-        <div style={{ backgroundColor: "#fef2f2", borderRadius: 10, padding: "16px 20px" }}>
+        <div style={{ backgroundColor: "#fffbeb", borderRadius: 10, padding: "16px 20px" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             What this means
           </div>
           <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
-            You may rank well on Google, but still be invisible in AI-driven recommendations —
-            especially for high-intent searches.
+            When buyers ask AI to recommend a sprocket supplier, Spacely is unlikely to be mentioned — even though you've been in business since the Jetson era.
           </p>
         </div>
       </div>
@@ -165,10 +163,10 @@ function IndustryBenchmark() {
       </div>
 
       <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 12px" }}>
-        You're slightly ahead of typical digital agencies — mainly due to strong technical SEO.
+        You're slightly below the space manufacturing average — largely because most competitors have basic product pages while Spacely's content remains thin and unstructured.
       </p>
       <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 16px" }}>
-        However, most competitors have the same weakness:{" "}
+        However, most competitors share the same fundamental weakness:{" "}
         <strong style={{ color: "#0f172a" }}>they're not structured for AI understanding.</strong>
       </p>
 
@@ -184,37 +182,37 @@ const QUERIES = [
   {
     n: 1,
     total: 3,
-    intent: "Find agencies that design websites for arts and cultural organisations",
-    recommend: true,
-    likelihood: "Very likely",
-    why: "Your site clearly demonstrates experience in this niche through case studies and language that AI can confidently interpret.",
-    confidenceDriver: "Repeated references to arts-focused work + strong contextual relevance",
+    intent: "Find suppliers of precision sprockets for spacecraft",
+    recommend: false,
+    likelihood: "Unlikely",
+    why: "Your site lacks the product specification language, material grades, and tolerances that AI looks for when matching industrial component suppliers to technical searches.",
+    missing: [
+      "Product spec pages with technical terminology",
+      "Application context — which spacecraft or systems use your sprockets",
+      "Industry certifications or quality standards",
+    ],
   },
   {
     n: 2,
     total: 3,
-    intent: "Find agencies that build digital products",
-    recommend: null, // inconsistent
+    intent: "Industrial parts manufacturer in Orbit City",
+    recommend: null,
     likelihood: "Inconsistent",
-    why: "While you mention digital products, the positioning is not clearly defined or reinforced across your site.",
+    why: "Your location is mentioned, but not consistently reinforced across pages. AI can place you in the region but isn't confident enough to recommend you for location-specific searches.",
     missing: [
-      "Clear service definition",
-      'Supporting examples framed as "product work"',
-      "Consistent terminology AI can latch onto",
+      "Orbit City references on key service pages",
+      "LocalBusiness schema markup",
+      "Customer references from local spacecraft manufacturers",
     ],
   },
   {
     n: 3,
     total: 3,
-    intent: "Find branding or design agencies in Melbourne",
-    recommend: false,
-    likelihood: "Unlikely",
-    why: "Your location and branding services aren't consistently stated. AI can't reliably place you in a geography or confirm branding as a core service.",
-    missing: [
-      "Explicit location references on key pages",
-      "Clear branding service description",
-      "Case studies labelled with location context",
-    ],
+    intent: "Who manufactures sprockets for the space economy?",
+    recommend: true,
+    likelihood: "Very likely",
+    why: "Your brand name and core product are clearly associated in AI training data. For broad brand-awareness searches, Spacely is consistently surfaced as a known player in the space sprocket category.",
+    confidenceDriver: "Strong brand-to-product association in AI training data + consistent use of 'space sprockets' terminology",
   },
 ];
 
@@ -296,10 +294,10 @@ function TargetQueryTest() {
           Overall Query Coverage
         </div>
         <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, margin: "0 0 6px" }}>
-          You're <strong>strongly positioned in 1 of 3</strong> key areas.
+          You're <strong>strongly positioned in 1 of 3</strong> key areas — brand awareness, but not commercial intent.
         </p>
         <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
-          The remaining opportunities are fixable — but currently limit how often AI will recommend you.
+          The remaining gaps are fixable — but until addressed, AI will recognise Spacely without recommending it to buyers.
         </p>
       </div>
     </div>
@@ -309,31 +307,31 @@ function TargetQueryTest() {
 const GAPS = [
   {
     n: 1,
-    title: "Service clarity",
+    title: "Product specifications",
     impact: "High",
-    line1: "Your services are implied, not explicitly defined.",
-    line2: "AI struggles to extract clear 'what you do' statements.",
+    line1: "No technical product pages exist — materials, tolerances, and compatible spacecraft systems are absent.",
+    line2: "AI cannot match Spacely to specific component searches without structured product data to reference.",
   },
   {
     n: 2,
-    title: "Industry positioning",
+    title: "Commercial intent signals",
     impact: "High",
-    line1: "Your arts focus is visible, but not consistently structured or reinforced across pages.",
-    line2: "AI can't reliably categorise you as a specialist in this space.",
+    line1: "The site reads as a brand presence, not a supplier. Pricing context, lead times, and ordering information are missing.",
+    line2: "AI prioritises suppliers that communicate clearly for buyers — not just brands that exist.",
   },
   {
     n: 3,
-    title: "Methodology and process",
+    title: "Customer application context",
     impact: "Medium",
-    line1: "Limited explanation of how you work reduces perceived expertise and trust signals.",
-    line2: "AI weights process descriptions when assessing credibility.",
+    line1: "No case studies or testimonials showing which manufacturers or spacecraft use Spacely sprockets.",
+    line2: "Without application examples, AI can't confidently recommend you for specific use-case queries.",
   },
   {
     n: 4,
-    title: "Technical context",
+    title: "Competitive differentiation",
     impact: "Medium",
-    line1: "Missing references to tools, platforms, and technologies limit visibility for technical queries.",
-    line2: "Specific tool names are strong signals AI uses to match you to technical searches.",
+    line1: "Nothing on the site explains why Spacely over Cogswell's Cogs — or any other supplier.",
+    line2: "AI recommendations favour businesses with clear positioning. Undifferentiated suppliers are skipped.",
   },
 ];
 
@@ -371,26 +369,22 @@ function AiRecognition() {
     <SectionCard title='Are you "known" to AI?'>
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
-          Score: 0 / 100 — Not currently recognised
+          Score: 18 / 100 — Recognised, but as a fictional brand
         </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          <strong>Explanation: </strong>AI systems don't yet associate your brand with a clear set of services or
-          expertise areas. This doesn't mean you're invisible — but it does mean you're not being
-          actively recalled or prioritised.
+          <strong>Explanation: </strong>AI systems do recognise Spacely Space Sprockets — but primarily as a fictional company from the animated series <em>The Jetsons</em>. This creates an unusual problem: brand awareness exists, but it's anchored to entertainment context rather than commercial intent.
         </div>
 
         <div style={{ padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: 8, fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          <strong>What this means: </strong>Most recommendations will come from general content
-          interpretation, not brand recognition.
+          <strong>What this means: </strong>When a buyer asks AI to recommend a sprocket supplier, the fictional association may actually work against you — AI may hedge or caveat your recommendation in ways it wouldn't for a less well-known but commercially structured competitor.
         </div>
 
         <CalloutBox color="#f0fdf4" borderColor="#bbf7d0">
           <strong style={{ color: "#15803d" }}>Opportunity: </strong>
-          <span>As your content becomes more structured and consistent, this score can improve quickly —
-          especially compared to competitors who haven't addressed this yet.</span>
+          <span>Building structured commercial content — product pages, case studies, schema markup — shifts the AI association from fictional character to credible supplier. You have the name recognition. You just need the commercial signals to match.</span>
         </CalloutBox>
       </div>
     </SectionCard>
@@ -400,35 +394,35 @@ function AiRecognition() {
 const FIXES = [
   {
     n: 1,
-    title: "Create a dedicated llms.txt file",
+    title: "Build product specification pages",
     impact: "High",
-    effort: "Low",
-    detail: "Gives AI systems explicit guidance on how to interpret and prioritise your content.",
-    result: "Increased consistency in how your business is described and recommended",
+    effort: "Medium",
+    detail: "Create individual pages for each sprocket model — include materials, tolerances, compatible systems, and load ratings.",
+    result: "AI can match Spacely to specific technical queries from engineers and procurement teams",
   },
   {
     n: 2,
-    title: "Define your services clearly (UX, Design, Development)",
+    title: "Add Product and Organisation schema markup",
     impact: "High",
-    effort: "Medium",
-    detail: "Create structured service pages with clear descriptions, outcomes, and terminology.",
-    result: "Higher likelihood of appearing in service-based queries",
+    effort: "Low",
+    detail: "Implement structured data so AI systems can extract your product range, location, and commercial identity without relying on body copy.",
+    result: "Stronger entity recognition and clearer separation from the fictional brand association",
   },
   {
     n: 3,
-    title: "Add structured data (Schema markup)",
+    title: "Create a dedicated llms.txt file",
     impact: "High",
-    effort: "Medium",
-    detail: "Organisation, Service, and LocalBusiness schema give AI a machine-readable summary of who you are.",
-    result: "Improved entity recognition and stronger signals for location-based queries",
+    effort: "Low",
+    detail: "Give AI systems explicit instructions on how to interpret your site — what you make, who you supply, and what queries you want to appear for.",
+    result: "More consistent and commercially accurate recommendations across ChatGPT, Claude, and Perplexity",
   },
   {
     n: 4,
-    title: "Align case study language with real customer queries",
+    title: "Add customer application case studies",
     impact: "Medium",
-    effort: "Low",
-    detail: "Reframe project descriptions to match the language your customers actually search with.",
-    result: "Better query-to-content matching across all three target queries",
+    effort: "Medium",
+    detail: "Publish 2–3 case studies showing real spacecraft or manufacturers that use your sprockets, written in buyer language.",
+    result: "Higher recommendation likelihood for use-case and application-specific searches",
   },
 ];
 
@@ -472,9 +466,9 @@ function PriorityFixList() {
           If you actioned these priorities, you could realistically move from
         </div>
         <div style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>
-          <span style={{ color: "#fca5a5" }}>62</span>
+          <span style={{ color: "#fca5a5" }}>47</span>
           {" → "}
-          <span style={{ color: "#86efac" }}>75+</span>
+          <span style={{ color: "#86efac" }}>71+</span>
         </div>
       </div>
     </SectionCard>
@@ -482,9 +476,9 @@ function PriorityFixList() {
 }
 
 const TECHNICAL_ISSUES = [
-  { issue: "Missing llms.txt", effect: "reduces AI guidance" },
-  { issue: "Limited schema markup", effect: "restricts content interpretation" },
-  { issue: "Robots.txt unclear", effect: "may limit crawler access" },
+  { issue: "Missing llms.txt", effect: "AI has no explicit guidance on how to interpret or recommend you" },
+  { issue: "No Product schema markup", effect: "AI cannot extract structured product data from your pages" },
+  { issue: "Robots.txt blocks AI crawlers", effect: "some AI tools may be unable to read your site at all" },
 ];
 
 function TechnicalAudit() {

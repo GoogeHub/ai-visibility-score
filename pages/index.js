@@ -172,21 +172,21 @@ export default function Landing() {
             }}>
               {/* Score header */}
               <div style={{ backgroundColor: "#fcf6f6", padding: "32px 28px", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Sample Business</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#64748b", marginBottom: 4 }}>Spacely Space Sprockets</div>
                 <div style={{ fontSize: 72, fontWeight: 800, color: "#0f172a", lineHeight: 1, letterSpacing: "-0.03em" }}>
-                  62<span style={{ fontSize: 32, fontWeight: 600, color: "#94a3b8" }}> / 100</span>
+                  47<span style={{ fontSize: 32, fontWeight: 600, color: "#94a3b8" }}> / 100</span>
                 </div>
-                <div style={{ marginTop: 12, display: "inline-block", background: "#eff6ff", color: "#2563eb", fontWeight: 700, fontSize: 14, padding: "5px 16px", borderRadius: 99 }}>Visible</div>
+                <div style={{ marginTop: 12, display: "inline-block", background: "#fffbeb", color: "#d97706", fontWeight: 700, fontSize: 14, padding: "5px 16px", borderRadius: 99 }}>Emerging</div>
                 {/* Score bar */}
                 <div style={{ position: "relative", height: 10, borderRadius: 99, background: "linear-gradient(to right, #1e3a8a, #d946ef)", margin: "20px auto 4px", maxWidth: 360 }}>
-                  <div style={{ position: "absolute", left: "62%", top: "50%", transform: "translate(-50%, -50%)", width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #1e3a8a", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
+                  <div style={{ position: "absolute", left: "47%", top: "50%", transform: "translate(-50%, -50%)", width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #1e3a8a", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
                 </div>
               </div>
 
               {/* Explanation paragraph — same as real report */}
               <div style={{ padding: "28px 28px 40px", backgroundColor: "#fff" }}>
                 <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, margin: 0 }}>
-                  Sample Business has a solid web presence and communicates its core offering with reasonable clarity. AI systems can broadly understand what you do and who you serve, and would mention you in relevant conversations — but there are gaps that reduce confidence in specific service areas. A few targeted fixes to your content structure and entity signals would push you into a consistently recommended position.
+                  Spacely Space Sprockets is recognised by AI — but primarily as a fictional brand from The Jetsons, not a commercial supplier. Your product range, manufacturing capabilities, and customer applications aren't structured in a way AI can confidently extract and repeat in a buying context. Until that changes, competitors with less name recognition but better-structured content will be recommended ahead of you.
                 </p>
               </div>
             </div>
