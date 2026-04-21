@@ -566,7 +566,7 @@ export default function DemoReport() {
         backgroundColor: "#1143cc", padding: "10px 24px",
         textAlign: "center", fontSize: 13, color: "#bfdbfe", fontWeight: 500,
       }}>
-        👋 This is a <strong style={{ color: "#fff" }}>sample report</strong> — run your own free analysis at <a href="/" style={{ color: "#93c5fd" }}>aiscorescout.com</a>
+        👋 This is a <strong style={{ color: "#fff" }}>sample report</strong> — <a href="/check" style={{ color: "#93c5fd", fontWeight: 600, textDecoration: "underline" }}>run your own free analysis now</a>
       </div>
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 24px 80px" }}>
