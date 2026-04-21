@@ -201,7 +201,7 @@ export default function Landing() {
 
           <div style={{ textAlign: "center", marginTop: 28, position: "relative", zIndex: 1 }}>
             <a
-              href="/demo-report"
+              href="/sample-report"
               target="_blank"
               rel="noopener noreferrer"
               style={{

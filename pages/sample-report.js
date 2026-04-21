@@ -118,7 +118,7 @@ function ScoreSummary() {
       {/* Summary */}
       <div style={{ textAlign: "left", marginTop: 28, borderTop: "1px solid #f1f5f9", paddingTop: 24 }}>
         <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.8, margin: "0 0 16px" }}>
-          Spacely Space Sprockets is known — but for the wrong reasons. AI systems recognise the brand primarily as a fictional entity from 21st-century entertainment archives, not as a commercial supplier of precision sprocket components.
+          Spacely Space Sprockets has an established web presence, but AI systems are struggling to position you as a commercial supplier.
         </p>
         <p style={{ fontSize: 15, color: "#334155", lineHeight: 1.8, margin: "0 0 20px" }}>
           The core problem isn't awareness — it's commercial clarity. Your product range, manufacturing capabilities, and customer applications aren't structured in a way AI can confidently extract and repeat in a buying context.
@@ -130,7 +130,7 @@ function ScoreSummary() {
           </div>
           <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 8 }}>
             <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>No product specifications AI can parse or reference</li>
-            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Brand recognition skewed toward fictional association, not commercial intent</li>
+            <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Site reads as a brand presence, not a supplier</li>
             <li style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Competitor Cogswell's Cogs has more structured, AI-readable content</li>
           </ul>
         </div>
@@ -140,7 +140,7 @@ function ScoreSummary() {
             What this means
           </div>
           <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: 0 }}>
-            When buyers ask AI to recommend a sprocket supplier, Spacely is unlikely to be mentioned — even though you've been in business since the Jetson era.
+            When buyers ask AI to recommend a sprocket supplier, Spacely is unlikely to be mentioned — despite being an established name in the industry.
           </p>
         </div>
       </div>
@@ -369,22 +369,22 @@ function AiRecognition() {
     <SectionCard title='Are you "known" to AI?'>
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
-          Score: 18 / 100 — Recognised, but as a fictional brand
+          Score: 18 / 100 — Limited AI recognition
         </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          <strong>Explanation: </strong>AI systems do recognise Spacely Space Sprockets — but primarily as a fictional company from the animated series <em>The Jetsons</em>. This creates an unusual problem: brand awareness exists, but it's anchored to entertainment context rather than commercial intent.
+          <strong>Explanation: </strong>Spacely Space Sprockets has a low recognition score — AI systems have little independent knowledge of the business beyond what's on the website. This is common for established businesses that haven't yet built a significant third-party footprint online.
         </div>
 
         <div style={{ padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: 8, fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          <strong>What this means: </strong>When a buyer asks AI to recommend a sprocket supplier, the fictional association may actually work against you — AI may hedge or caveat your recommendation in ways it wouldn't for a less well-known but commercially structured competitor.
+          <strong>What this means: </strong>Without external signals — industry mentions, supplier directories, press coverage — AI treats Spacely as an unknown quantity. That means it's unlikely to be recommended without being explicitly asked about, even for searches where you'd be a strong fit.
         </div>
 
         <CalloutBox color="#f0fdf4" borderColor="#bbf7d0">
           <strong style={{ color: "#15803d" }}>Opportunity: </strong>
-          <span>Building structured commercial content — product pages, case studies, schema markup — shifts the AI association from fictional character to credible supplier. You have the name recognition. You just need the commercial signals to match.</span>
+          <span>Recognition improves over time as structured content, schema markup, and third-party citations accumulate. Businesses that actively build these signals see meaningful recognition gains within 3–6 months.</span>
         </CalloutBox>
       </div>
     </SectionCard>
@@ -599,7 +599,7 @@ export default function DemoReport() {
         backgroundColor: "#1143cc", padding: "10px 24px",
         textAlign: "center", fontSize: 13, color: "#bfdbfe", fontWeight: 500,
       }}>
-        🧪 This is a <strong style={{ color: "#fff" }}>demo report</strong> — content is hardcoded for design review purposes
+        👋 This is a <strong style={{ color: "#fff" }}>sample report</strong> — run your own free analysis at <a href="/" style={{ color: "#93c5fd" }}>aiscorescout.com</a>
       </div>
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 24px 80px" }}>
