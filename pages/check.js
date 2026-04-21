@@ -103,11 +103,11 @@ function LockedCard({ title, teaser, children, unlocked, badge }) {
             <div style={{
               padding: "16px 20px",
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
               gap: 10,
             }}>
               <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5, flex: 1 }}>{teaser}</div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
                 <span style={{ fontSize: 18 }}>🔒</span>
                 {badge && (
                   <span style={{
