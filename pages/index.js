@@ -259,16 +259,16 @@ export default function Landing() {
 
       {/* Final CTA */}
       <div style={{ backgroundColor: "#0f172a", padding: "0px 40px 80px", textAlign: "center" }}>
-        <h2 style={{ fontSize: 34, fontWeight: 800, color: "#fff", margin: "0 0 16px", letterSpacing: "-0.01em" }}>
+        <h2 style={{ fontSize: 34, fontWeight: 800, color: "#fff", margin: "0 0 36px", letterSpacing: "-0.01em" }}>
           Find out if AI is recommending you — or ignoring you.
         </h2>
-        <p style={{ fontSize: 17, color: "#94a3b8", margin: "0 0 36px", lineHeight: 1.8 }}>
-          Free score · Full report $49<br />
-          No account required · Results in 30 seconds
-        </p>
         <button onClick={() => router.push("/check")} style={ctaButton(false)}>
           Check Your AI Visibility →
         </button>
+        <p style={{ fontSize: 14, color: "#94a3b8", margin: "16px 0 0", lineHeight: 1.8 }}>
+          Free score · Full report $49<br />
+          No account required · Results in 30 seconds
+        </p>
       </div>
 
     </div>
