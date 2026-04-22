@@ -54,8 +54,9 @@ export default function Landing() {
         >
           Check Your AI Visibility →
         </button>
-        <div style={{ marginTop: 16, fontSize: 14, color: "#94a3b8" }}>
-          Free score · Takes 30 seconds · No account required
+        <div style={{ marginTop: 16, fontSize: 14, color: "#94a3b8", lineHeight: 1.8 }}>
+          Free score · Full report $49<br />
+          No account required · Results in 30 seconds
         </div>
       </div>
 
@@ -261,8 +262,9 @@ export default function Landing() {
         <h2 style={{ fontSize: 34, fontWeight: 800, color: "#fff", margin: "0 0 16px", letterSpacing: "-0.01em" }}>
           Find out if AI is recommending you — or ignoring you.
         </h2>
-        <p style={{ fontSize: 17, color: "#94a3b8", margin: "0 0 36px" }}>
-          Free score · No account required · Results in 30 seconds
+        <p style={{ fontSize: 17, color: "#94a3b8", margin: "0 0 36px", lineHeight: 1.8 }}>
+          Free score · Full report $49<br />
+          No account required · Results in 30 seconds
         </p>
         <button onClick={() => router.push("/check")} style={ctaButton(false)}>
           Check Your AI Visibility →
