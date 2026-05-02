@@ -437,38 +437,6 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
 
-  const aiRecognitionContent = () => {
-    if (result.recognition_score === 0) {
-      return (
-        <div>
-          <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 12 }}>Score: 0 / 100 — Not currently recognised</div>
-          <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: 12 }}>
-            <strong>Explanation: </strong>AI systems don't yet associate your brand with a clear set of services or expertise areas. This doesn't mean you're invisible — but it does mean you're not being actively recalled or prioritised.
-          </div>
-          <div style={{ padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: 8, fontSize: 14, color: "#334155", lineHeight: 1.7, marginBottom: 12 }}>
-            <strong>What this means: </strong>Most recommendations will come from general content interpretation, not brand recognition.
-          </div>
-          <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "14px 16px", fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-            <strong style={{ color: "#15803d" }}>Opportunity: </strong>As your content becomes more structured and consistent, this score can improve quickly — especially compared to competitors who haven't addressed this yet.
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div>
-        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 16, alignItems: "center", marginBottom: 14 }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 42, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{result.recognition_score}</div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>/ 100</div>
-          </div>
-          <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.6 }}>
-            <div style={{ fontWeight: 600, color: "#0f172a", marginBottom: 4 }}>Confidence: {result.confidence}</div>
-            {result.known_for}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -549,6 +517,17 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
         }}>
           {result.explanation}
         </p>
+
+        {result.recognition_score > 60 && (
+          <div style={{
+            marginTop: 16, padding: "12px 16px",
+            backgroundColor: "#f8fafc", border: "1px solid #e2e8f0",
+            borderRadius: 8, fontSize: 13, color: "#64748b",
+            lineHeight: 1.6, textAlign: "left",
+          }}>
+            <strong style={{ color: "#475569" }}>Worth noting:</strong> this business is well-established in AI training data — meaning AI systems are already broadly familiar with the brand. The score above reflects website signals only — the content and structure AI uses when deciding who to recommend in live searches.
+          </div>
+        )}
       </div>
 
       {/* Locked sections */}
@@ -702,14 +681,6 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
 
       <LockedCard
         unlocked={showFull}
-        title='Are you "known" to AI?'
-        teaser="Is your business already known by AI — and does it matter for you?"
-      >
-        {aiRecognitionContent()}
-      </LockedCard>
-
-      <LockedCard
-        unlocked={showFull}
         title="Priority Fix List"
         badge={result.priority_fixes?.length > 0 ? `${result.priority_fixes.length} fixes` : undefined}
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
@@ -798,7 +769,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
               <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Promo Applied ✓</div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>Get Your Full Report</div>
               <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
-                Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
+                Industry benchmark · Target query tests · Content gaps · Priority fixes
               </p>
               <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
                 📬 Send Me the Full Report
@@ -809,7 +780,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
               <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Unlock Full Report</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
               <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
-                Industry benchmark · Target query tests · Content gaps · Priority fixes · AI Recognition
+                Industry benchmark · Target query tests · Content gaps · Priority fixes
               </p>
               <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
                 🔓 Unlock Full Report — $49

@@ -363,32 +363,6 @@ function ContentGapAnalysis() {
   );
 }
 
-function AiRecognition() {
-  return (
-    <SectionCard title='Are you "known" to AI?'>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
-          Score: 18 / 100 — Limited AI recognition
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          <strong>Explanation: </strong>Spacely Space Sprockets has a low recognition score — AI systems have little independent knowledge of the business beyond what's on the website. This is common for established businesses that haven't yet built a significant third-party footprint online.
-        </div>
-
-        <div style={{ padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: 8, fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
-          <strong>What this means: </strong>Without external signals — industry mentions, supplier directories, press coverage — AI treats Spacely as an unknown quantity. That means it's unlikely to be recommended without being explicitly asked about, even for searches where you'd be a strong fit.
-        </div>
-
-        <CalloutBox color="#f0fdf4" borderColor="#bbf7d0">
-          <strong style={{ color: "#15803d" }}>Opportunity: </strong>
-          <span>Recognition improves over time as structured content, schema markup, and third-party citations accumulate. Businesses that actively build these signals see meaningful recognition gains within 3–6 months.</span>
-        </CalloutBox>
-      </div>
-    </SectionCard>
-  );
-}
 
 const FIXES = [
   {
@@ -588,7 +562,6 @@ export default function DemoReport() {
           <IndustryBenchmark />
           <TargetQueryTest />
           <ContentGapAnalysis />
-          <AiRecognition />
           <PriorityFixList />
           <TechnicalAudit />
           <RunYourOwnCta />
