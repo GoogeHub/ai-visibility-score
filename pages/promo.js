@@ -850,6 +850,16 @@ export default function Promo() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  function isValidUrl(val) {
+    return /^https?:\/\/.+\..+/.test(val.trim());
+  }
+
+  function isValidEmail(val) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  }
+
+  const canSubmit = isValidUrl(form.url) && (!form.email || isValidEmail(form.email));
+
   async function handleSubmit() {
     setLoading(true);
     setLoadingStep("mapping");
@@ -984,14 +994,14 @@ export default function Promo() {
                   placeholder="https://yourbusiness.com"
                   value={form.url}
                   onChange={(e) => updateForm("url", e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && form.url && handleSubmit()}
+                  onKeyDown={(e) => e.key === "Enter" && canSubmit && handleSubmit()}
                   style={inputStyle}
                 />
               </div>
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Business Name
+                  Business Name{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
                 </label>
                 <input
                   type="text"
@@ -1004,7 +1014,7 @@ export default function Promo() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Industry
+                  Industry{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>recommended</span>
                 </label>
                 <input
                   type="text"
@@ -1017,7 +1027,7 @@ export default function Promo() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 4, fontSize: 15 }}>
-                  What do you want AI to recommend you for?
+                  What do you want AI to recommend you for?{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>recommended</span>
                 </label>
                 <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>
                   Add up to 3 searches your ideal customers might use.
@@ -1054,6 +1064,9 @@ export default function Promo() {
                   onChange={(e) => updateForm("email", e.target.value)}
                   style={inputStyle}
                 />
+                <p style={{ margin: "6px 0 0", fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+                  We'll only ever email you this report. No spam, no marketing, no hard sells — ever.
+                </p>
               </div>
 
               {/* Promo code */}
@@ -1100,17 +1113,17 @@ export default function Promo() {
               <div>
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || !form.url}
+                  disabled={loading || !canSubmit}
                   style={{
                     width: "100%",
                     padding: "16px",
-                    backgroundColor: loading || !form.url ? "#cbd5e1" : "#1143cc",
+                    backgroundColor: loading || !canSubmit ? "#cbd5e1" : "#1143cc",
                     color: "#fff",
                     border: "none",
                     borderRadius: 10,
                     fontSize: 16,
                     fontWeight: 700,
-                    cursor: loading || !form.url ? "not-allowed" : "pointer",
+                    cursor: loading || !canSubmit ? "not-allowed" : "pointer",
                   }}
                 >
                   {loading ? "Analysing your AI visibility..." : "Get My AI Visibility Score →"}

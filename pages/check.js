@@ -433,7 +433,6 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
   const [showModal, setShowModal] = useState(false);
   const [reportSentTo, setReportSentTo] = useState(null);
   const [showFull, setShowFull] = useState(false);
-  const promoUnlocked = formData.promoValid === true;
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
 
@@ -450,15 +449,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {showModal && (promoUnlocked ? (
-        <EmailModal
-          onClose={() => setShowModal(false)}
-          onSent={(email) => { setReportSentTo(email); onReportSent(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-          prefillEmail={formData.email}
-          result={result}
-          formData={formData}
-        />
-      ) : (
+      {showModal && (
         <PaymentModal
           onClose={() => setShowModal(false)}
           onSent={(email) => { setReportSentTo(email); onReportSent(email); setShowModal(false); setShowFull(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
@@ -466,7 +457,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
           result={result}
           formData={formData}
         />
-      ))}
+      )}
 
 
       {/* Report header */}
@@ -774,29 +765,16 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
           padding: "28px 24px",
           textAlign: "center",
         }}>
-          {promoUnlocked ? (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Promo Applied ✓</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>Get Your Full Report</div>
-              <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
-                Industry benchmark · Target query tests · Content gaps · Priority fixes
-              </p>
-              <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                📬 Send Me the Full Report
-              </button>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Unlock Full Report</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
-              <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
-                Industry benchmark · Target query tests · Content gaps · Priority fixes
-              </p>
-              <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                🔓 Unlock Full Report — $49
-              </button>
-            </>
-          )}
+          <>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#93c5fd", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Unlock Full Report</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>$49</div>
+            <p style={{ fontSize: 14, color: "#93c5fd", margin: "0 0 20px", lineHeight: 1.6 }}>
+              Industry benchmark · Target query tests · Content gaps · Priority fixes
+            </p>
+            <button onClick={() => setShowModal(true)} style={{ width: "100%", padding: "16px", backgroundColor: "#fff", color: "#1143cc", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
+              🔓 Unlock Full Report — $49
+            </button>
+          </>
         </div>
       )}
 
@@ -814,27 +792,13 @@ export default function Check() {
     industry: "",
     targetQueries: ["", "", ""],
     email: "",
-    promoValid: false,
   });
-  const [promoCode, setPromoCode] = useState("");
-  const [promoStatus, setPromoStatus] = useState(null); // null | "valid" | "invalid"
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("mapping");
   const [loadingPageCount, setLoadingPageCount] = useState(null);
   const [error, setError] = useState(null);
   const [reportSentTo, setReportSentTo] = useState(null);
-
-  const VALID_PROMO_CODES = ["SCOUT2025"];
-
-  function applyPromo() {
-    if (VALID_PROMO_CODES.includes(promoCode.trim().toUpperCase())) {
-      setPromoStatus("valid");
-      setForm(prev => ({ ...prev, promoValid: true }));
-    } else {
-      setPromoStatus("invalid");
-    }
-  }
 
   const LOADING_STEPS = [
     { key: "mapping",   label: "Mapping your website" },
@@ -848,6 +812,16 @@ export default function Check() {
   function updateForm(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
+
+  function isValidUrl(val) {
+    return /^https?:\/\/.+\..+/.test(val.trim());
+  }
+
+  function isValidEmail(val) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  }
+
+  const canSubmit = isValidUrl(form.url) && (!form.email || isValidEmail(form.email));
 
   async function handleSubmit() {
     setLoading(true);
@@ -979,14 +953,14 @@ export default function Check() {
                   placeholder="https://yourbusiness.com"
                   value={form.url}
                   onChange={(e) => updateForm("url", e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && form.url && handleSubmit()}
+                  onKeyDown={(e) => e.key === "Enter" && canSubmit && handleSubmit()}
                   style={inputStyle}
                 />
               </div>
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Business Name
+                  Business Name{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
                 </label>
                 <input
                   type="text"
@@ -999,7 +973,7 @@ export default function Check() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Industry
+                  Industry{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>recommended</span>
                 </label>
                 <input
                   type="text"
@@ -1012,7 +986,7 @@ export default function Check() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 4, fontSize: 15 }}>
-                  What do you want AI to recommend you for?
+                  What do you want AI to recommend you for?{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>recommended</span>
                 </label>
                 <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>
                   Add up to 3 searches your ideal customers might use.
@@ -1049,45 +1023,9 @@ export default function Check() {
                   onChange={(e) => updateForm("email", e.target.value)}
                   style={inputStyle}
                 />
-              </div>
-
-              {/* Promo code */}
-              <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Promo code{" "}
-                  <span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
-                </label>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input
-                    type="text"
-                    placeholder="Enter code"
-                    value={promoCode}
-                    onChange={e => { setPromoCode(e.target.value); setPromoStatus(null); }}
-                    onKeyDown={e => e.key === "Enter" && applyPromo()}
-                    style={{ ...inputStyle, flex: 1, textTransform: "uppercase" }}
-                    disabled={promoStatus === "valid"}
-                  />
-                  <button
-                    onClick={applyPromo}
-                    disabled={!promoCode || promoStatus === "valid"}
-                    style={{
-                      padding: "0 18px",
-                      backgroundColor: promoStatus === "valid" ? "#f0fdf4" : "#f1f5f9",
-                      color: promoStatus === "valid" ? "#16a34a" : "#475569",
-                      border: `1px solid ${promoStatus === "valid" ? "#bbf7d0" : "#e2e8f0"}`,
-                      borderRadius: 10,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      cursor: !promoCode || promoStatus === "valid" ? "default" : "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {promoStatus === "valid" ? "✓ Applied" : "Apply"}
-                  </button>
-                </div>
-                {promoStatus === "invalid" && (
-                  <div style={{ marginTop: 6, fontSize: 13, color: "#dc2626" }}>Invalid promo code</div>
-                )}
+                <p style={{ margin: "6px 0 0", fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+                  We'll only ever email you this report. No spam, no marketing, no hard sells — ever.
+                </p>
               </div>
 
               <div style={{ borderTop: "1px solid #f1f5f9" }} />
@@ -1095,17 +1033,17 @@ export default function Check() {
               <div>
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || !form.url}
+                  disabled={loading || !canSubmit}
                   style={{
                     width: "100%",
                     padding: "16px",
-                    backgroundColor: loading || !form.url ? "#cbd5e1" : "#1143cc",
+                    backgroundColor: loading || !canSubmit ? "#cbd5e1" : "#1143cc",
                     color: "#fff",
                     border: "none",
                     borderRadius: 10,
                     fontSize: 16,
                     fontWeight: 700,
-                    cursor: loading || !form.url ? "not-allowed" : "pointer",
+                    cursor: loading || !canSubmit ? "not-allowed" : "pointer",
                   }}
                 >
                   {loading ? "Analysing your AI visibility..." : "Get My AI Visibility Score →"}
