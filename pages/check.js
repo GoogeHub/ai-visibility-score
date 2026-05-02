@@ -810,7 +810,8 @@ export default function Check() {
   const [promoStatus, setPromoStatus] = useState(null); // null | "valid" | "invalid"
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingStep, setLoadingStep] = useState("mapping");
+  const [loadingPageCount, setLoadingPageCount] = useState(null);
   const [error, setError] = useState(null);
   const [reportSentTo, setReportSentTo] = useState(null);
 
@@ -825,21 +826,14 @@ export default function Check() {
     }
   }
 
-  const loadingMessages = [
-    { icon: "🔍", text: "Scanning your website…" },
-    { icon: "🤖", text: "Testing AI recognition…" },
-    { icon: "📊", text: "Running query tests…" },
-    { icon: "🧠", text: "Analysing content signals…" },
-    { icon: "📝", text: "Building your report…" },
+  const LOADING_STEPS = [
+    { key: "mapping",   label: "Mapping your website" },
+    { key: "crawling",  label: "Crawling pages" },
+    { key: "analysing", label: "Analysing content signals" },
+    { key: "building",  label: "Building your report" },
   ];
 
-  useEffect(() => {
-    if (!loading) { setLoadingStep(0); return; }
-    const interval = setInterval(() => {
-      setLoadingStep(s => (s + 1) % loadingMessages.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [loading]);
+  const stepOrder = LOADING_STEPS.map(s => s.key);
 
   function updateForm(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -847,6 +841,7 @@ export default function Check() {
 
   async function handleSubmit() {
     setLoading(true);
+    setLoadingStep("mapping");
     setResult(null);
     setError(null);
 
@@ -861,12 +856,34 @@ export default function Check() {
           targetQueries: form.targetQueries,
         }),
       });
-      const data = await res.json();
-      if (data.error) {
-        setError("Something went wrong. Please try again.");
-      } else {
-        setResult(data);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop(); // keep incomplete line in buffer
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === "status") {
+              setLoadingStep(data.step);
+              if (data.step === "crawling" && data.pageCount) {
+                setLoadingPageCount(data.pageCount);
+              }
+            } else if (data.type === "complete") {
+              setResult(data.result);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else if (data.type === "error") {
+              setError("Something went wrong. Please try again.");
+            }
+          } catch {}
+        }
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -1086,33 +1103,54 @@ export default function Check() {
 
                 {loading && (
                   <div style={{
-                    position: "fixed",
-                    inset: 0,
-                    backgroundColor: "#fcf6f6",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 999,
-                    gap: 24,
+                    position: "fixed", inset: 0, backgroundColor: "#fcf6f6",
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    justifyContent: "center", zIndex: 999, padding: 24,
                   }}>
-                    <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 220, marginBottom: 8 }} />
-                    <div style={{ fontSize: 48 }}>{loadingMessages[loadingStep].icon}</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#0f172a" }}>
-                      {loadingMessages[loadingStep].text}
+                    <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 200, marginBottom: 40 }} />
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%", maxWidth: 300 }}>
+                      {LOADING_STEPS.map((step, i) => {
+                        const currentIdx = stepOrder.indexOf(loadingStep);
+                        const stepIdx = stepOrder.indexOf(step.key);
+                        const isDone = stepIdx < currentIdx;
+                        const isCurrent = step.key === loadingStep;
+                        const isPending = stepIdx > currentIdx;
+
+                        let label = step.label;
+                        if (step.key === "crawling" && isCurrent && loadingPageCount) {
+                          label = `Crawling ${loadingPageCount} page${loadingPageCount !== 1 ? "s" : ""}`;
+                        }
+
+                        return (
+                          <div key={step.key} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 0",
+                            borderBottom: i < LOADING_STEPS.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                              backgroundColor: isDone ? "#1143cc" : isCurrent ? "#eff6ff" : "#f8fafc",
+                              border: isCurrent ? "2px solid #1143cc" : "2px solid transparent",
+                              transition: "all 0.3s ease",
+                            }}>
+                              {isDone && (
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              )}
+                              {isCurrent && (
+                                <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#1143cc",
+                                  animation: "pulse 1.2s ease-in-out infinite" }} />
+                              )}
+                            </div>
+                            <span style={{
+                              fontSize: 15, fontWeight: isCurrent ? 700 : 400,
+                              color: isDone ? "#1143cc" : isCurrent ? "#0f172a" : "#94a3b8",
+                              transition: "all 0.3s ease",
+                            }}>
+                              {label}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div style={{ fontSize: 14, color: "#94a3b8" }}>This usually takes 15–30 seconds</div>
-                    <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-                      {loadingMessages.map((_, i) => (
-                        <div key={i} style={{
-                          width: i === loadingStep ? 20 : 6,
-                          height: 6,
-                          borderRadius: 99,
-                          backgroundColor: i === loadingStep ? "#1143cc" : "#e2e8f0",
-                          transition: "all 0.4s ease",
-                        }} />
-                      ))}
-                    </div>
+
+                    <style>{`@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.75); } }`}</style>
                   </div>
                 )}
 

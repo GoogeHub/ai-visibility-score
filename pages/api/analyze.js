@@ -1,10 +1,22 @@
 export const maxDuration = 60;
 
 export default async function handler(req, res) {
+  // ─── SSE setup ────────────────────────────────────────────────────────────
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+
+  function emit(data) {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    if (res.flush) res.flush();
+  }
+
   try {
     let { url, businessName, industry, targetQueries } = req.body;
 
-    if (!url) return res.status(400).json({ error: "No URL provided" });
+    if (!url) { emit({ type: "error", message: "No URL provided" }); res.end(); return; }
     if (!/^https?:\/\//i.test(url)) url = "https://" + url;
 
     const baseUrl = new URL(url).origin;
@@ -36,6 +48,8 @@ export default async function handler(req, res) {
     }
 
     // ─── PHASE 1a: Map site + other signals in parallel ───────────────────────
+    emit({ type: "status", step: "mapping" });
+
     const [mapResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult] = await Promise.allSettled([
 
       fetch("https://api.firecrawl.dev/v1/map", {
@@ -45,7 +59,6 @@ export default async function handler(req, res) {
       }).then(r => r.json()),
 
       fetch(`${baseUrl}/robots.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
-
       fetch(`${baseUrl}/llms.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
 
       fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; AIVisibilityBot/1.0)" } })
@@ -60,13 +73,13 @@ export default async function handler(req, res) {
           temperature: 0,
           messages: [{
             role: "user",
-            content: `Based purely on your training data, what do you know about this business?
+            content: `Based purely on your training data, what do you know about the business at this website?
 
 ${bizContext}
 ${indContext}
-Website: ${url}
 
 Return ONLY valid JSON. Important rules:
+- Use the website URL as the primary identifier — the business name may be approximate or misspelled
 - If you have no specific knowledge of this business, recognition_score MUST be 0 and confidence MUST be "Not recognised"
 - Do not give a non-zero score as a hedge — only score above 0 if you can actually describe what the business does from training data
 - The score and known_for text must be consistent with each other
@@ -90,7 +103,6 @@ Return ONLY valid JSON. Important rules:
     const schemaMatches = [...(rawHtml || "").matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
     const schemaData = schemaMatches.map(m => { try { return JSON.parse(m[1]); } catch { return null; } }).filter(Boolean);
 
-    // Extract favicon URL from raw HTML
     let faviconUrl = null;
     if (rawHtml) {
       const faviconMatch =
@@ -127,6 +139,8 @@ Return ONLY valid JSON. Important rules:
     const urlsToScrape = [url, ...topInnerPages];
 
     // ─── PHASE 1b: Scrape selected pages in parallel ──────────────────────────
+    emit({ type: "status", step: "crawling", pageCount: urlsToScrape.length });
+
     const scrapeResults = await Promise.allSettled(
       urlsToScrape.map(pageUrl =>
         fetch("https://api.firecrawl.dev/v1/scrape", {
@@ -137,7 +151,6 @@ Return ONLY valid JSON. Important rules:
       )
     );
 
-    // Combine page content — more chars for homepage, less for inner pages
     const pageContent = scrapeResults
       .map((result, i) => {
         const md = result.status === "fulfilled" ? result.value?.data?.markdown : null;
@@ -149,9 +162,10 @@ Return ONLY valid JSON. Important rules:
       .join("\n\n") || "No content retrieved.";
 
     // ─── PHASE 2: Main analysis + query test in parallel ─────────────────────
+    emit({ type: "status", step: "analysing" });
+
     const [analysisResult, queryTestResult] = await Promise.allSettled([
 
-      // Main web signals analysis
       fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
@@ -224,7 +238,6 @@ Rules:
         })
       }).then(r => r.json()),
 
-      // Query group test
       queries.length > 0
         ? fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
@@ -274,13 +287,15 @@ Return ONLY valid JSON:
     ]);
 
     // Parse Phase 2 results
+    emit({ type: "status", step: "building" });
+
     const anthropicData = analysisResult.status === "fulfilled" ? analysisResult.value : null;
     const rawText = anthropicData?.content?.[0]?.text || "{}";
     const cleanText = rawText.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
 
     let analysis;
     try { analysis = JSON.parse(cleanText); }
-    catch { return res.status(500).json({ error: "Failed to parse AI response" }); }
+    catch { emit({ type: "error", message: "Failed to parse AI response" }); res.end(); return; }
 
     let queryGroups = [];
     if (queryTestResult.status === "fulfilled" && queryTestResult.value) {
@@ -289,17 +304,14 @@ Return ONLY valid JSON:
       try { queryGroups = JSON.parse(clean)?.query_groups || []; } catch {}
     }
 
-    // ─── Self-notification ───────────────────────────────────────────────────
+    // ─── Self-notification (fire and forget) ─────────────────────────────────
     const queriesText = queries.length > 0
       ? queries.map((q, i) => `<li>Query ${i + 1}: ${q}</li>`).join("")
       : "<li>None entered</li>";
 
     fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: "AI Score Scout <report@mail.aiscorescout.com>",
         to: ["googe@studiobravo.com.au"],
@@ -319,31 +331,38 @@ Return ONLY valid JSON:
           </div>
         `,
       }),
-    }).catch(() => {}); // fire and forget
+    }).catch(() => {});
 
-    res.status(200).json({
-      inferred_name: analysis.inferred_name || businessName || null,
-      favicon_url: faviconUrl || null,
-      web_score: analysis.web_score,
-      web_label: analysis.web_label,
-      recognition_score: recognition.recognition_score,
-      confidence: recognition.confidence,
-      known_for: recognition.known_for,
-      explanation: analysis.explanation,
-      holding_back: analysis.holding_back || [],
-      what_this_means: analysis.what_this_means || null,
-      content_gaps: analysis.content_gaps || [],
-      priority_fixes: analysis.priority_fixes || [],
-      technical_issues: analysis.technical_issues || [],
-      score_uplift: analysis.score_uplift || null,
-      benchmark_note: analysis.benchmark_note || null,
-      benchmark_avg: analysis.benchmark_avg || null,
-      query_groups: queryGroups,
-      business_name: businessName || null,
-      industry: industry || null,
+    // ─── Emit final result ────────────────────────────────────────────────────
+    emit({
+      type: "complete",
+      result: {
+        inferred_name: analysis.inferred_name || businessName || null,
+        favicon_url: faviconUrl || null,
+        web_score: analysis.web_score,
+        web_label: analysis.web_label,
+        recognition_score: recognition.recognition_score,
+        confidence: recognition.confidence,
+        known_for: recognition.known_for,
+        explanation: analysis.explanation,
+        holding_back: analysis.holding_back || [],
+        what_this_means: analysis.what_this_means || null,
+        content_gaps: analysis.content_gaps || [],
+        priority_fixes: analysis.priority_fixes || [],
+        technical_issues: analysis.technical_issues || [],
+        score_uplift: analysis.score_uplift || null,
+        benchmark_note: analysis.benchmark_note || null,
+        benchmark_avg: analysis.benchmark_avg || null,
+        query_groups: queryGroups,
+        business_name: businessName || null,
+        industry: industry || null,
+      },
     });
 
+    res.end();
+
   } catch (error) {
-    res.status(500).json({ error: `Server error: ${error.message}` });
+    emit({ type: "error", message: `Server error: ${error.message}` });
+    res.end();
   }
 }
