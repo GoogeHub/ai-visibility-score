@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
@@ -797,7 +797,7 @@ export default function Check() {
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("mapping");
   const [error, setError] = useState(null);
-  const crawlingStartRef = React.useRef(null);
+  const crawlingStartRef = useRef(null);
   const [reportSentTo, setReportSentTo] = useState(null);
   const [urlTouched, setUrlTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);

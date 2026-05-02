@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -824,7 +824,7 @@ export default function Promo() {
   const [loadingStep, setLoadingStep] = useState("mapping");
   const [error, setError] = useState(null);
   const [reportSentTo, setReportSentTo] = useState(null);
-  const crawlingStartRef = React.useRef(null);
+  const crawlingStartRef = useRef(null);
   const [urlTouched, setUrlTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
 
