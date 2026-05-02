@@ -184,7 +184,7 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify({
       from: "AI Score Scout <report@mail.aiscorescout.com>",
-      to: ["googe@studiobravo.com.au"],
+      to: ["payment@aiscorescout.com"],
       subject: `💳 New payment: ${formData?.businessName || email}`,
       html: `
         <div style="font-family: sans-serif; font-size: 15px; color: #0f172a; max-width: 480px;">

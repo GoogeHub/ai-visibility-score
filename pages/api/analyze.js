@@ -328,7 +328,7 @@ Return ONLY valid JSON:
       headers: { "Authorization": `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: "AI Score Scout <report@mail.aiscorescout.com>",
-        to: ["googe@studiobravo.com.au"],
+        to: ["nibble@aiscorescout.com"],
         subject: `📊 New analysis: ${businessName || url}`,
         html: `
           <div style="font-family: sans-serif; font-size: 15px; color: #0f172a; max-width: 480px;">
