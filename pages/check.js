@@ -562,7 +562,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="Target Query Test"
-        badge={result.query_groups?.length > 0 ? `${result.query_groups.filter(g => !g.would_recommend).length} gaps` : undefined}
+        badge={result.query_groups?.filter(g => !g.would_recommend).length > 0 ? `${result.query_groups.filter(g => !g.would_recommend).length} gaps` : undefined}
         teaser={
           formData.targetQueries?.filter(Boolean).length > 0
             ? `Does AI recommend you for the ${formData.targetQueries.filter(Boolean).length} search${formData.targetQueries.filter(Boolean).length > 1 ? "es" : ""} you care about?`
