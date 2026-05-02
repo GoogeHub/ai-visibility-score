@@ -225,8 +225,8 @@ Return ONLY valid JSON:
     }
   ],
   "score_uplift": (a realistic estimated score 0-100 that this business could reach if they implemented the priority fixes — should be meaningfully higher than web_score but not unrealistically optimistic),
-  "benchmark_note": (1 sentence estimating how this score compares to typical businesses in their industry — must be consistent with benchmark_avg),
-  "benchmark_avg": (a single estimated average score number 0-100 for their industry — must match benchmark_note)
+  "benchmark_avg": (a single estimated average score number 0-100 for their industry),
+  "benchmark_note": (1 sentence comparing their score to the industry average — must reference the exact benchmark_avg number above, not a range. e.g. "The typical digital agency scores around 62, putting Studio Bravo just above the industry average.")
 }
 
 Rules:
