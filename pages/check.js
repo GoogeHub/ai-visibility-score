@@ -799,6 +799,8 @@ export default function Check() {
   const [loadingPageCount, setLoadingPageCount] = useState(null);
   const [error, setError] = useState(null);
   const [reportSentTo, setReportSentTo] = useState(null);
+  const [urlTouched, setUrlTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const LOADING_STEPS = [
     { key: "mapping",   label: "Mapping your website" },
@@ -815,12 +817,12 @@ export default function Check() {
 
   function isValidUrl(val) {
     const trimmed = val.trim();
-    // Accept with or without protocol — just needs to look like a real domain
-    return /^(https?:\/\/)?[^\s]+\.[^\s]{2,}/.test(trimmed) && !trimmed.includes(" ");
+    return /^(https?:\/\/)?[^\s]+\.[^\s]{2,}/.test(trimmed) && !trimmed.includes(" ") && !trimmed.endsWith(".");
   }
 
   function isValidEmail(val) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+    const trimmed = val.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) && !trimmed.endsWith(".");
   }
 
   const canSubmit = isValidUrl(form.url) && (!form.email || isValidEmail(form.email));
@@ -955,8 +957,9 @@ export default function Check() {
                   placeholder="https://yourbusiness.com"
                   value={form.url}
                   onChange={(e) => updateForm("url", e.target.value)}
+                  onBlur={() => setUrlTouched(true)}
                   onKeyDown={(e) => e.key === "Enter" && canSubmit && handleSubmit()}
-                  style={inputStyle}
+                  style={{ ...inputStyle, border: `1px solid ${urlTouched && form.url && !isValidUrl(form.url) ? "#ef4444" : "#e2e8f0"}` }}
                 />
               </div>
 
@@ -1023,7 +1026,8 @@ export default function Check() {
                   placeholder="you@company.com"
                   value={form.email}
                   onChange={(e) => updateForm("email", e.target.value)}
-                  style={inputStyle}
+                  onBlur={() => setEmailTouched(true)}
+                  style={{ ...inputStyle, border: `1px solid ${emailTouched && form.email && !isValidEmail(form.email) ? "#ef4444" : "#e2e8f0"}` }}
                 />
                 <p style={{ margin: "6px 0 0", fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
                   We'll only ever email you this report. No spam, no marketing, no hard sells — ever.
