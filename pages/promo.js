@@ -851,7 +851,9 @@ export default function Promo() {
   }
 
   function isValidUrl(val) {
-    return /^https?:\/\/.+\..+/.test(val.trim());
+    const trimmed = val.trim();
+    // Accept with or without protocol — just needs to look like a real domain
+    return /^(https?:\/\/)?[^\s]+\.[^\s]{2,}/.test(trimmed) && !trimmed.includes(" ");
   }
 
   function isValidEmail(val) {
