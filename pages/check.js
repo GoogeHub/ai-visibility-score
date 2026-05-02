@@ -434,7 +434,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
   const [reportSentTo, setReportSentTo] = useState(null);
   const [showFull, setShowFull] = useState(false);
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
-  const displayName = formData.businessName || result.business_name || "Your business";
+  const displayName = result.business_name || formData.businessName || "Your business";
 
   // Filter fixes and issues by confidence (≥60) — items without a confidence field pass through for backward compatibility
   const CONFIDENCE_THRESHOLD = 60;
@@ -535,7 +535,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="How you compare in AI visibility"
-        teaser={`How does ${displayName} compare to other ${formData.industry || "businesses"} in AI visibility?`}
+        teaser={`How does ${displayName} compare to similar businesses in AI visibility?`}
       >
         <div style={{ fontSize: 14, color: "#334155", lineHeight: 1.7 }}>
           {result.benchmark_note || `Most businesses in this industry score between 25–55 on AI visibility. ${displayName}'s score of ${result.web_score} places them ${result.web_score >= 50 ? "above" : "below"} the typical range.`}
