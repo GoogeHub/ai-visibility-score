@@ -442,10 +442,10 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
   const visibleFixes = (result.priority_fixes || []).filter(fix =>
     (fix.confidence === undefined || fix.confidence >= CONFIDENCE_THRESHOLD) &&
     (fix.impact === "High" || fix.impact === "Medium")
-  );
+  ).slice(0, 5);
   const visibleIssues = (result.technical_issues || []).filter(issue =>
     issue.confidence === undefined || issue.confidence >= CONFIDENCE_THRESHOLD
-  );
+  ).slice(0, 4);
 
 
   return (

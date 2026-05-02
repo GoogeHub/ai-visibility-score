@@ -244,7 +244,7 @@ Return ONLY valid JSON:
 
 Rules:
 - content_gaps: return exactly 3-4 objects
-- priority_fixes: return exactly 8 objects, ordered High impact first, each with a confidence score
+- priority_fixes: return exactly 6 objects, ordered High impact first, each with a confidence score
 - technical_issues: return exactly 5 objects, each with a confidence score
 - Do not recommend creating pages, sections, or content that already exists in the site structure list above
 - No extra text. Just the JSON.`
