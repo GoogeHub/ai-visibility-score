@@ -212,16 +212,18 @@ Return ONLY valid JSON:
   "priority_fixes": [
     {
       "title": "short fix title",
-      "impact": "High or Medium",
+      "impact": "High, Medium, or Low",
       "effort": "Low, Medium, or High",
       "detail": "one sentence on what to do",
-      "expected_result": "one sentence on the likely outcome if this fix is implemented — what will change in how AI finds or recommends them"
+      "expected_result": "one sentence on the likely outcome if this fix is implemented — what will change in how AI finds or recommends them",
+      "confidence": (0-100 integer — how confident you are this is a real, observable issue for this specific site. 80+ = directly visible in the crawled content. 50-79 = reasonably inferred from available signals. Below 50 = speculative or assumed without direct evidence)
     }
   ],
   "technical_issues": [
     {
       "issue": (short name of the technical problem, e.g. "Missing llms.txt"),
-      "effect": (short consequence phrase, e.g. "reduces AI guidance")
+      "effect": (short consequence phrase, e.g. "reduces AI guidance"),
+      "confidence": (0-100 integer — how confident you are this issue exists for this specific site, based on what was directly observed in the crawled content, robots.txt, schema data, and llms.txt. 80+ = confirmed present or absent. 50-79 = likely but not directly verified. Below 50 = assumed)
     }
   ],
   "score_uplift": (a realistic estimated score 0-100 that this business could reach if they implemented the priority fixes — should be meaningfully higher than web_score but not unrealistically optimistic),
@@ -231,8 +233,8 @@ Return ONLY valid JSON:
 
 Rules:
 - content_gaps: return exactly 3-4 objects
-- priority_fixes: return exactly 4 objects, ordered High impact first
-- technical_issues: return exactly 2-3 objects
+- priority_fixes: return exactly 8 objects, ordered High impact first, each with a confidence score
+- technical_issues: return exactly 5 objects, each with a confidence score
 - No extra text. Just the JSON.`
           }]
         })

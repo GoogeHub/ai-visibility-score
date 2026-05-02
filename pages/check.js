@@ -437,6 +437,16 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
   const displayName = formData.businessName || result.business_name || "Your business";
 
+  // Filter fixes and issues by confidence (≥60) — items without a confidence field pass through for backward compatibility
+  const CONFIDENCE_THRESHOLD = 60;
+  const visibleFixes = (result.priority_fixes || []).filter(fix =>
+    (fix.confidence === undefined || fix.confidence >= CONFIDENCE_THRESHOLD) &&
+    (fix.impact === "High" || fix.impact === "Medium")
+  );
+  const visibleIssues = (result.technical_issues || []).filter(issue =>
+    issue.confidence === undefined || issue.confidence >= CONFIDENCE_THRESHOLD
+  );
+
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -682,7 +692,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="Priority Fix List"
-        badge={result.priority_fixes?.length > 0 ? `${result.priority_fixes.length} fixes` : undefined}
+        badge={visibleFixes.length > 0 ? `${visibleFixes.length} fixes` : undefined}
         teaser="Your highest-impact improvements ranked by effort, with step-by-step guidance."
       >
         <style>{`
@@ -691,9 +701,9 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
             .fix-pills  { flex-direction: column !important; }
           }
         `}</style>
-        {result.priority_fixes?.length > 0 ? (
+        {visibleFixes.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {result.priority_fixes.map((fix, i) => (
+            {visibleFixes.map((fix, i) => (
               <div key={i} style={{ padding: "12px 14px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
                 <div className="fix-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{fix.title}</div>
@@ -726,12 +736,12 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
       <LockedCard
         unlocked={showFull}
         title="Technical signals affecting AI visibility"
-        badge={result.technical_issues?.length > 0 ? `${result.technical_issues.length} issues` : undefined}
+        badge={visibleIssues.length > 0 ? `${visibleIssues.length} issues` : undefined}
         teaser="Behind-the-scenes signals that affect how AI tools crawl and interpret your site."
       >
-        {result.technical_issues?.length > 0 ? (
+        {visibleIssues.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {result.technical_issues.map((issue, i) => (
+            {visibleIssues.map((issue, i) => (
               typeof issue === "string" ? (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
                   <span style={{ fontSize: 16 }}>⚠️</span>
