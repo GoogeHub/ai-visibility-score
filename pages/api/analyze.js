@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 export default async function handler(req, res) {
   try {
     let { url, businessName, industry, targetQueries } = req.body;
@@ -15,13 +17,31 @@ export default async function handler(req, res) {
       ? `Their goal: Be recommended by AI for searches related to: ${queries.map(q => `"${q}"`).join(", ")} — interpret these charitably and broadly. Focus on underlying intent.`
       : "";
 
-    // ─── PHASE 1: Fetch all web signals + recognition in parallel ───────────
-    const [scrapeResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult] = await Promise.allSettled([
+    // ─── URL scoring helper ───────────────────────────────────────────────────
+    const EXCLUDE_PATTERNS = [
+      '/tag/', '/category/', '/author/', '/page/', '/wp-json/', '/feed/',
+      '/cdn-cgi/', '/wp-content/', '/wp-includes/', '.xml', '.pdf',
+      '.jpg', '.jpeg', '.png', '.gif', '.svg', '.css', '.js',
+    ];
 
-      fetch("https://api.firecrawl.dev/v1/scrape", {
+    function scoreUrl(urlStr) {
+      try {
+        const parsed = new URL(urlStr);
+        if (parsed.origin !== baseUrl) return -1;
+        if (parsed.search || parsed.hash) return -1;
+        const path = parsed.pathname;
+        if (EXCLUDE_PATTERNS.some(p => urlStr.includes(p))) return -1;
+        return path.split('/').filter(Boolean).length;
+      } catch { return -1; }
+    }
+
+    // ─── PHASE 1a: Map site + other signals in parallel ───────────────────────
+    const [mapResult, robotsResult, llmsResult, rawHtmlResult, recognitionResult] = await Promise.allSettled([
+
+      fetch("https://api.firecrawl.dev/v1/map", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.FIRECRAWL_API_KEY}` },
-        body: JSON.stringify({ url, formats: ["markdown"] })
+        body: JSON.stringify({ url })
       }).then(r => r.json()),
 
       fetch(`${baseUrl}/robots.txt`).then(r => r.ok ? r.text() : null).catch(() => null),
@@ -62,9 +82,7 @@ Return ONLY valid JSON. Important rules:
 
     ]);
 
-    // Parse Phase 1 results
-    const scrapeData = scrapeResult.status === "fulfilled" ? scrapeResult.value : null;
-    const pageContent = scrapeData?.data?.markdown || "No content retrieved.";
+    // Parse Phase 1a results
     const robotsTxt = robotsResult.status === "fulfilled" ? robotsResult.value : null;
     const llmsTxt = llmsResult.status === "fulfilled" ? llmsResult.value : null;
     const rawHtml = rawHtmlResult.status === "fulfilled" ? rawHtmlResult.value : "";
@@ -96,7 +114,41 @@ Return ONLY valid JSON. Important rules:
       recognition.recognition_score = 0;
     }
 
-    // ─── PHASE 2: Main analysis + query test in parallel (both use page content) ───
+    // Select top pages from map result
+    const allUrls = mapResult.status === "fulfilled" ? (mapResult.value?.links || []) : [];
+    const topInnerPages = allUrls
+      .filter(u => u !== url && u !== baseUrl && u !== `${baseUrl}/`)
+      .map(u => ({ url: u, score: scoreUrl(u) }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 4)
+      .map(({ url: u }) => u);
+
+    const urlsToScrape = [url, ...topInnerPages];
+
+    // ─── PHASE 1b: Scrape selected pages in parallel ──────────────────────────
+    const scrapeResults = await Promise.allSettled(
+      urlsToScrape.map(pageUrl =>
+        fetch("https://api.firecrawl.dev/v1/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.FIRECRAWL_API_KEY}` },
+          body: JSON.stringify({ url: pageUrl, formats: ["markdown"] })
+        }).then(r => r.json())
+      )
+    );
+
+    // Combine page content — more chars for homepage, less for inner pages
+    const pageContent = scrapeResults
+      .map((result, i) => {
+        const md = result.status === "fulfilled" ? result.value?.data?.markdown : null;
+        if (!md) return null;
+        const charLimit = i === 0 ? 1500 : 600;
+        return `--- PAGE: ${urlsToScrape[i]} ---\n${md.slice(0, charLimit)}`;
+      })
+      .filter(Boolean)
+      .join("\n\n") || "No content retrieved.";
+
+    // ─── PHASE 2: Main analysis + query test in parallel ─────────────────────
     const [analysisResult, queryTestResult] = await Promise.allSettled([
 
       // Main web signals analysis
@@ -115,8 +167,8 @@ ${bizContext}
 ${indContext}
 ${goalContext}
 
---- PAGE CONTENT ---
-${pageContent.slice(0, 3000)}
+--- PAGE CONTENT (${urlsToScrape.length} pages crawled) ---
+${pageContent}
 
 --- STRUCTURED DATA (schema.org) ---
 ${schemaData.length > 0 ? JSON.stringify(schemaData).slice(0, 800) : "None detected"}
@@ -172,7 +224,7 @@ Rules:
         })
       }).then(r => r.json()),
 
-      // Query group test — clusters similar queries by intent, then tests each distinct group
+      // Query group test
       queries.length > 0
         ? fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
@@ -189,7 +241,7 @@ ${bizContext}
 ${indContext}
 
 --- WEBSITE CONTENT ---
-${pageContent.slice(0, 2000)}
+${pageContent.slice(0, 3000)}
 
 ---
 
@@ -262,11 +314,12 @@ Return ONLY valid JSON:
               <tr><td style="padding: 8px 0; color: #64748b;">Email</td><td style="padding: 8px 0;">${req.body.email || "—"}</td></tr>
               <tr><td style="padding: 8px 0; color: #64748b; vertical-align: top;">Target queries</td><td style="padding: 8px 0;"><ul style="margin: 0; padding-left: 16px;">${queriesText}</ul></td></tr>
               <tr><td style="padding: 8px 0; color: #64748b;">Score</td><td style="padding: 8px 0;"><strong>${analysis.web_score} / 100 — ${analysis.web_label}</strong></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Pages crawled</td><td style="padding: 8px 0;">${urlsToScrape.length} (${urlsToScrape.join(", ")})</td></tr>
             </table>
           </div>
         `,
       }),
-    }).catch(() => {}); // fire and forget — never block the main response
+    }).catch(() => {}); // fire and forget
 
     res.status(200).json({
       inferred_name: analysis.inferred_name || businessName || null,
