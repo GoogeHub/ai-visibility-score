@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     if (!/^https?:\/\//i.test(url)) url = "https://" + url;
 
     const baseUrl = new URL(url).origin;
-    const bizContext = businessName ? `Business name: ${businessName}` : `Website: ${url}`;
+    const bizContext = `Website: ${url}${businessName ? `\nBusiness name (user-supplied): ${businessName}` : ""}`;
     const indContext = industry ? `Industry: ${industry}` : "";
     const queries = Array.isArray(targetQueries)
       ? targetQueries.map(q => q?.trim()).filter(Boolean)
