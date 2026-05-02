@@ -248,7 +248,7 @@ export default async function handler(req, res) {
     body: JSON.stringify({
       from: "AI Score Scout <report@mail.aiscorescout.com>",
       to: [email],
-      subject: `Your AI Visibility Report${formData?.businessName ? ` — ${formData.businessName}` : ""}`,
+      subject: `Your AI Visibility Report${result.inferred_name || formData?.businessName ? ` — ${result.inferred_name || formData?.businessName}` : ""}`,
       html,
     }),
   });
@@ -269,7 +269,7 @@ export default async function handler(req, res) {
     body: JSON.stringify({
       from: "AI Score Scout <report@mail.aiscorescout.com>",
       to: ["payment@aiscorescout.com"],
-      subject: `💳 New payment: ${formData?.businessName || email}`,
+      subject: `💳 New payment: ${result.inferred_name || formData?.businessName || email}`,
       html: `
         <div style="font-family: sans-serif; font-size: 15px; color: #0f172a; max-width: 480px;">
           <h2 style="margin: 0 0 16px;">New report unlocked</h2>

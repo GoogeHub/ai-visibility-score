@@ -822,9 +822,9 @@ export default function Promo() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("mapping");
-  const [loadingPageCount, setLoadingPageCount] = useState(null);
   const [error, setError] = useState(null);
   const [reportSentTo, setReportSentTo] = useState(null);
+  const crawlingStartRef = React.useRef(null);
   const [urlTouched, setUrlTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
 
@@ -897,9 +897,17 @@ export default function Promo() {
           try {
             const data = JSON.parse(line.slice(6));
             if (data.type === "status") {
-              setLoadingStep(data.step);
-              if (data.step === "crawling" && data.pageCount) {
-                setLoadingPageCount(data.pageCount);
+              if (data.step === "crawling") {
+                crawlingStartRef.current = Date.now();
+                setLoadingStep("crawling");
+              } else if (data.step === "analysing") {
+                // Hold on "Crawling pages" for at least 3 seconds
+                const elapsed = crawlingStartRef.current ? Date.now() - crawlingStartRef.current : 3000;
+                const remaining = Math.max(0, 3000 - elapsed);
+                if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
+                setLoadingStep("analysing");
+              } else {
+                setLoadingStep(data.step);
               }
             } else if (data.type === "complete") {
               setResult(data.result);
@@ -1151,11 +1159,6 @@ export default function Promo() {
                         const isCurrent = step.key === loadingStep;
                         const isPending = stepIdx > currentIdx;
 
-                        let label = step.label;
-                        if (step.key === "crawling" && isCurrent && loadingPageCount) {
-                          label = `Crawling ${loadingPageCount} page${loadingPageCount !== 1 ? "s" : ""}`;
-                        }
-
                         return (
                           <div key={step.key} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 0",
                             borderBottom: i < LOADING_STEPS.length - 1 ? "1px solid #f1f5f9" : "none" }}>
@@ -1177,7 +1180,7 @@ export default function Promo() {
                               color: isDone ? "#1143cc" : isCurrent ? "#0f172a" : "#94a3b8",
                               transition: "all 0.3s ease",
                             }}>
-                              {label}
+                              {step.label}
                             </span>
                           </div>
                         );

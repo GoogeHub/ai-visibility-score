@@ -329,7 +329,7 @@ Return ONLY valid JSON:
       body: JSON.stringify({
         from: "AI Score Scout <report@mail.aiscorescout.com>",
         to: ["nibble@aiscorescout.com"],
-        subject: `📊 New analysis: ${businessName || url}`,
+        subject: `📊 New analysis: ${analysis.inferred_name || businessName || url}`,
         html: `
           <div style="font-family: sans-serif; font-size: 15px; color: #0f172a; max-width: 480px;">
             <h2 style="margin: 0 0 16px;">New analysis submitted</h2>
