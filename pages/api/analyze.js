@@ -138,6 +138,14 @@ Return ONLY valid JSON. Important rules:
 
     const urlsToScrape = [url, ...topInnerPages];
 
+    // Build site structure list for LLM context — filtered URLs sorted by depth, paths only
+    const siteStructure = allUrls
+      .filter(u => scoreUrl(u) >= 0)
+      .sort((a, b) => scoreUrl(a) - scoreUrl(b))
+      .slice(0, 40)
+      .map(u => { try { return new URL(u).pathname; } catch { return u; } })
+      .join("\n");
+
     // ─── PHASE 1b: Scrape selected pages in parallel ──────────────────────────
     emit({ type: "status", step: "crawling", pageCount: urlsToScrape.length });
 
@@ -180,6 +188,9 @@ Return ONLY valid JSON. Important rules:
 ${bizContext}
 ${indContext}
 ${goalContext}
+
+--- SITE STRUCTURE (all discovered pages — do not recommend creating pages that already exist here) ---
+${siteStructure || "Could not retrieve site structure"}
 
 --- PAGE CONTENT (${urlsToScrape.length} pages crawled) ---
 ${pageContent}
@@ -235,6 +246,7 @@ Rules:
 - content_gaps: return exactly 3-4 objects
 - priority_fixes: return exactly 8 objects, ordered High impact first, each with a confidence score
 - technical_issues: return exactly 5 objects, each with a confidence score
+- Do not recommend creating pages, sections, or content that already exists in the site structure list above
 - No extra text. Just the JSON.`
           }]
         })
