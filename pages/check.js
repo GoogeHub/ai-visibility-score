@@ -253,7 +253,7 @@ function StripeForm({ onSent, prefillEmail, result, formData, onClose, clientSec
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState(null);
-  const displayName = formData?.businessName || result?.business_name || "Your business";
+  const displayName = result?.inferred_name || formData?.businessName || "Your business";
 
   async function handlePay() {
     if (!stripe || !elements || !email || !nameOnCard) return;
@@ -434,7 +434,7 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
   const [reportSentTo, setReportSentTo] = useState(null);
   const [showFull, setShowFull] = useState(false);
   const labelCfg = labelConfig[result.web_label] || labelConfig.Emerging;
-  const displayName = result.business_name || formData.businessName || "Your business";
+  const displayName = result.inferred_name || formData.businessName || "Your business";
 
   // Filter fixes and issues by confidence (≥60) — items without a confidence field pass through for backward compatibility
   const CONFIDENCE_THRESHOLD = 60;
