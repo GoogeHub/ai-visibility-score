@@ -1107,7 +1107,7 @@ export default function Check() {
                     display: "flex", flexDirection: "column", alignItems: "center",
                     justifyContent: "center", zIndex: 999, padding: 24,
                   }}>
-                    <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 200, marginBottom: 40 }} />
+                    <img src="/AI-ScoreScout_logo.png" alt="AI Score Scout" style={{ width: 375, marginBottom: 40 }} />
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%", maxWidth: 300 }}>
                       {LOADING_STEPS.map((step, i) => {
