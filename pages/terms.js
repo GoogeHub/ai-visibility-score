@@ -105,14 +105,6 @@ export default function Terms() {
             <p>If you have any questions about these terms or your data, please contact us at <a href="mailto:hello@aiscorescout.com" style={{ color: "#1143cc" }}>hello@aiscorescout.com</a>.</p>
           </Section>
 
-          <div style={{ marginTop: 48, paddingTop: 32, borderTop: "1px solid #e2e8f0" }}>
-            <button
-              onClick={() => router.back()}
-              style={{ fontSize: 14, color: "#1143cc", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-            >
-              ← Back
-            </button>
-          </div>
 
         </div>
       </div>
