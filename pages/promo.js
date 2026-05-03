@@ -825,6 +825,7 @@ export default function Promo() {
   const [error, setError] = useState(null);
   const [reportSentTo, setReportSentTo] = useState(null);
   const crawlingStartRef = useRef(null);
+  const buildingStartRef = useRef(null);
   const [urlTouched, setUrlTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
 
@@ -901,15 +902,22 @@ export default function Promo() {
                 crawlingStartRef.current = Date.now();
                 setLoadingStep("crawling");
               } else if (data.step === "analysing") {
-                // Hold on "Crawling pages" for at least 3 seconds
-                const elapsed = crawlingStartRef.current ? Date.now() - crawlingStartRef.current : 3000;
-                const remaining = Math.max(0, 3000 - elapsed);
+                // Hold on "Crawling pages" for at least 2 seconds
+                const elapsed = crawlingStartRef.current ? Date.now() - crawlingStartRef.current : 2000;
+                const remaining = Math.max(0, 2000 - elapsed);
                 if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
                 setLoadingStep("analysing");
+              } else if (data.step === "building") {
+                buildingStartRef.current = Date.now();
+                setLoadingStep("building");
               } else {
                 setLoadingStep(data.step);
               }
             } else if (data.type === "complete") {
+              // Hold on "Building your report" for at least 1.5 seconds
+              const elapsed = buildingStartRef.current ? Date.now() - buildingStartRef.current : 1500;
+              const remaining = Math.max(0, 1500 - elapsed);
+              if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
               setResult(data.result);
               window.scrollTo({ top: 0, behavior: "smooth" });
             } else if (data.type === "error") {
@@ -1145,6 +1153,11 @@ export default function Promo() {
                 >
                   {loading ? "Analysing your AI visibility..." : "Get My AI Visibility Score →"}
                 </button>
+
+                <p style={{ margin: "10px 0 0", fontSize: 12, color: "#94a3b8", textAlign: "center", lineHeight: 1.5 }}>
+                  By continuing you agree to our{" "}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "#94a3b8", textDecoration: "underline" }}>Terms of Service & Privacy Policy</a>
+                </p>
 
                 {loading && (
                   <div style={{
