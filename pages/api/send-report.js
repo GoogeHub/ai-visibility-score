@@ -34,20 +34,18 @@ export function generateEmail(result, formData) {
   const sectionTitle = (text) =>
     `<div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 18px;">${text}</div>`;
 
-  // ── Score bar (fixed) ─────────────────────────────────────────────────────
-  // Uses margin-left offset instead of transform:translate (unsupported in many email clients)
-  // Uses a table for the 0–100 axis labels instead of flexbox
+  // ── Score bar ─────────────────────────────────────────────────────────────
+  // Pin uses margin-left offset (avoids transform:translate which breaks in email).
+  // CSS classes allow Gmail/Outlook to hide the pin + axis while keeping the bar.
+  // Axis simplified to 0 and 100 only (25/50/75 removed for all clients).
   const pinPct = Math.min(Math.max(result.web_score, 2), 98);
   const scoreBar = `
     <div style="position: relative; height: 12px; border-radius: 99px; background: linear-gradient(to right, #1e3a8a, #d946ef); margin: 20px 0 6px;">
-      <div style="position: absolute; left: ${pinPct}%; top: 50%; margin-left: -11px; margin-top: -11px; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #1e3a8a;"></div>
+      <div class="score-pin" style="position: absolute; left: ${pinPct}%; top: 50%; margin-left: -11px; margin-top: -11px; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #1e3a8a;"></div>
     </div>
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px;">
+    <table class="score-axis" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px;">
       <tr>
         <td style="font-size: 11px; color: #94a3b8; text-align: left;">0</td>
-        <td style="font-size: 11px; color: #94a3b8; text-align: center;">25</td>
-        <td style="font-size: 11px; color: #94a3b8; text-align: center;">50</td>
-        <td style="font-size: 11px; color: #94a3b8; text-align: center;">75</td>
         <td style="font-size: 11px; color: #94a3b8; text-align: right;">100</td>
       </tr>
     </table>`;
@@ -137,8 +135,32 @@ export function generateEmail(result, formData) {
   // ── Full HTML ─────────────────────────────────────────────────────────────
   return `<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-<body style="margin: 0; padding: 0; background: #f3e7e7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /*
+     * Score bar progressive enhancement:
+     *   - All clients: show gradient bar (inline, always visible)
+     *   - Apple Mail / iOS Mail / modern clients: show pin + axis (default below)
+     *   - Gmail web/app: u + .body selector hides pin + axis
+     *   - Outlook: MSO conditional comment below hides pin + axis
+     */
+    .score-pin  { display: block; }
+    .score-axis { display: table; width: 100%; }
+
+    /* Gmail (web + Android app) */
+    u + .body .score-pin  { display: none !important; }
+    u + .body .score-axis { display: none !important; }
+  </style>
+  <!--[if mso]>
+  <style>
+    .score-pin  { display: none !important; }
+    .score-axis { display: none !important; }
+  </style>
+  <![endif]-->
+</head>
+<body class="body" style="margin: 0; padding: 0; background: #f3e7e7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="padding: 32px 16px; background: #f3e7e7;">
     <tr><td align="center">
