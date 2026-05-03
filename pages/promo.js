@@ -971,6 +971,9 @@ export default function Promo() {
           <div style={{ fontSize: 13, color: "#bfdbfe" }}>
             A copy has been emailed to <strong style={{ color: "#fff" }}>{reportSentTo}</strong>
           </div>
+          <div style={{ fontSize: 12, color: "#93c5fd", marginTop: 4 }}>
+            Can't see it? Check your spam or junk folder.
+          </div>
         </div>
       )}
 
