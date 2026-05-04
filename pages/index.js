@@ -102,11 +102,20 @@ export default function Landing() {
           <p style={{ fontSize: 17, color: "#475569", lineHeight: 1.8, margin: "0 0 18px" }}>
             That means your site needs to do more than exist — it needs to communicate:
           </p>
-          <ul style={{ fontSize: 17, color: "#475569", lineHeight: 2, margin: "0 0 18px", paddingLeft: 24 }}>
-            <li>what you do</li>
-            <li>who you help</li>
-            <li>why you're credible</li>
-          </ul>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, margin: "0 0 18px" }}>
+            {[
+              { emoji: "🎯", keyword: "What", rest: " you do" },
+              { emoji: "🤝", keyword: "Who",  rest: " you help" },
+              { emoji: "🏆", keyword: "Why",  rest: " you're credible" },
+            ].map(({ emoji, keyword, rest }) => (
+              <div key={keyword} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 20, lineHeight: 1 }}>{emoji}</span>
+                <span style={{ fontSize: 17, color: "#475569", lineHeight: 1.6 }}>
+                  <strong style={{ color: "#1143cc" }}>{keyword}</strong>{rest}
+                </span>
+              </div>
+            ))}
+          </div>
           <p style={{ fontSize: 17, color: "#475569", lineHeight: 1.8, margin: 0 }}>
             If that's unclear, AI simply won't mention you.
           </p>
