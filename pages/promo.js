@@ -810,11 +810,9 @@ function ResultsView({ result, formData, onReset, onReportSent }) {
 export default function Promo() {
   const router = useRouter();
   const [form, setForm] = useState({
-    businessName: "",
     url: "",
     industry: "",
     targetQueries: ["", "", ""],
-    email: "",
     promoValid: false,
   });
   const [promoCode, setPromoCode] = useState("");
@@ -827,7 +825,6 @@ export default function Promo() {
   const crawlingStartRef = useRef(null);
   const buildingStartRef = useRef(null);
   const [urlTouched, setUrlTouched] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
 
   const VALID_PROMO_CODES = ["SCOUT2025"];
 
@@ -858,12 +855,7 @@ export default function Promo() {
     return /^(https?:\/\/)?[^\s]+\.[^\s]{2,}/.test(trimmed) && !trimmed.includes(" ") && !trimmed.endsWith(".");
   }
 
-  function isValidEmail(val) {
-    const trimmed = val.trim();
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) && !trimmed.endsWith(".");
-  }
-
-  const canSubmit = isValidUrl(form.url) && (!form.email || isValidEmail(form.email));
+  const canSubmit = isValidUrl(form.url);
 
   async function handleSubmit() {
     setLoading(true);
@@ -877,7 +869,6 @@ export default function Promo() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: form.url,
-          businessName: form.businessName,
           industry: form.industry,
           targetQueries: form.targetQueries,
         }),
@@ -935,7 +926,7 @@ export default function Promo() {
 
   function handleReset() {
     setResult(null);
-    setForm({ businessName: "", url: "", industry: "", targetQueries: ["", "", ""], email: "" });
+    setForm({ url: "", industry: "", targetQueries: ["", "", ""], promoValid: false });
   }
 
   return (
@@ -1025,19 +1016,6 @@ export default function Promo() {
 
               <div>
                 <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Business Name{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Acme Co."
-                  value={form.businessName}
-                  onChange={(e) => updateForm("businessName", e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
                   Industry{" "}<span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>recommended</span>
                 </label>
                 <input
@@ -1074,24 +1052,6 @@ export default function Promo() {
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontWeight: 600, color: "#1143cc", marginBottom: 6, fontSize: 15 }}>
-                  Email{" "}
-                  <span style={{ fontWeight: 400, color: "#94a3b8", fontSize: 13 }}>optional</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="you@company.com"
-                  value={form.email}
-                  onChange={(e) => updateForm("email", e.target.value)}
-                  onBlur={() => setEmailTouched(true)}
-                  style={{ ...inputStyle, border: `1px solid ${emailTouched && form.email && !isValidEmail(form.email) ? "#ef4444" : "#e2e8f0"}` }}
-                />
-                <p style={{ margin: "6px 0 0", fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
-                  We'll only ever email you this report. No spam, no marketing, no hard sells — ever.
-                </p>
               </div>
 
               {/* Promo code */}
