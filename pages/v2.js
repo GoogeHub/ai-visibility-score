@@ -1,8 +1,32 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useState } from "react";
+
+function isValidUrl(value) {
+  const trimmed = value.trim();
+  return (
+    /^(https?:\/\/)?[^\s]+\.[^\s]{2,}/.test(trimmed) &&
+    !trimmed.includes(" ") &&
+    !trimmed.endsWith(".")
+  );
+}
 
 export default function LandingV2() {
   const router = useRouter();
+  const [url, setUrl] = useState("");
+  const [urlError, setUrlError] = useState(false);
+  const [jiggle, setJiggle] = useState(false);
+
+  function handleSubmit() {
+    if (!isValidUrl(url)) {
+      setUrlError(true);
+      setJiggle(true);
+      setTimeout(() => setJiggle(false), 500);
+      return;
+    }
+    setUrlError(false);
+    router.push(`/check?url=${encodeURIComponent(url)}`);
+  }
 
   return (
     <div style={{
@@ -17,6 +41,14 @@ export default function LandingV2() {
         @media (min-width: 768px) { .hero-logo { width: 500px !important; } }
         @media (max-width: 600px) { .proof-grid { grid-template-columns: 1fr 1fr !important; } }
         @media (max-width: 420px) { .proof-grid { grid-template-columns: 1fr !important; } }
+        @keyframes jiggle {
+          0%, 100% { transform: translateX(0); }
+          20%       { transform: translateX(-8px); }
+          40%       { transform: translateX(8px); }
+          60%       { transform: translateX(-5px); }
+          80%       { transform: translateX(5px); }
+        }
+        .jiggle { animation: jiggle 0.45s ease; }
       `}</style>
 
       {/* Nav */}
@@ -263,45 +295,56 @@ export default function LandingV2() {
         boxSizing: "border-box",
       }}>
         {/* Inner white panel */}
-        <div style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          boxShadow: "0 -6px 40px rgba(0,0,0,0.2)",
-          overflow: "hidden",
-        }}>
-          <div style={{ padding: "24px 24px 16px" }}>
+        <div
+          className={jiggle ? "jiggle" : ""}
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 20,
+            boxShadow: "0 -6px 40px rgba(0,0,0,0.2)",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ padding: "16px 24px 16px" }}>
             <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 14, textAlign: "center" }}>
               Check your site's AI Visibility
             </div>
             <input
               type="text"
               placeholder="https://yourbusiness.com"
+              value={url}
+              onChange={e => { setUrl(e.target.value); setUrlError(false); }}
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
               style={{
                 width: "100%",
                 padding: "13px 16px",
                 fontSize: 16,
-                border: "1px solid #e2e8f0",
+                border: urlError ? "1.5px solid #ef4444" : "1px solid #e2e8f0",
                 borderRadius: 10,
                 outline: "none",
                 color: "#0f172a",
-                backgroundColor: "#f8fafc",
+                backgroundColor: urlError ? "#fff5f5" : "#f8fafc",
                 boxSizing: "border-box",
                 display: "block",
+                textAlign: "center",
+                transition: "border-color 0.15s, background-color 0.15s",
               }}
             />
           </div>
-          <button style={{
-            width: "100%",
-            padding: "16px",
-            backgroundColor: "#1143cc",
-            color: "#fff",
-            border: "none",
-            borderRadius: 0,
-            fontSize: 16,
-            fontWeight: 700,
-            cursor: "pointer",
-            display: "block",
-          }}>
+          <button
+            onClick={handleSubmit}
+            style={{
+              width: "100%",
+              padding: "16px",
+              backgroundColor: "#1143cc",
+              color: "#fff",
+              border: "none",
+              borderRadius: 0,
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "block",
+            }}
+          >
             See your free AI Visibility Score →
           </button>
         </div>
