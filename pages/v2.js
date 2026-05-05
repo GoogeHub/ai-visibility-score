@@ -260,10 +260,10 @@ export default function LandingV2() {
         backgroundColor: "#fff",
         borderRadius: "20px 20px 0 0",
         boxShadow: "0 -4px 32px rgba(0,0,0,0.13)",
-        padding: "20px 20px 32px",
+        overflow: "hidden",
       }}>
-        <div style={{ maxWidth: 500, margin: "0 auto" }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 12, textAlign: "center" }}>
+        <div style={{ maxWidth: 500, margin: "0 auto", padding: "24px 24px 14px" }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 14, textAlign: "center" }}>
             Check your site's AI Visibility
           </div>
           <input
@@ -279,22 +279,24 @@ export default function LandingV2() {
               color: "#0f172a",
               backgroundColor: "#f8fafc",
               boxSizing: "border-box",
-              marginBottom: 10,
               display: "block",
             }}
           />
+        </div>
+        <div style={{ maxWidth: 500, margin: "0 auto" }}>
           <button style={{
             width: "100%",
-            padding: "15px",
+            padding: "16px",
             backgroundColor: "#1143cc",
             color: "#fff",
             border: "none",
-            borderRadius: 10,
+            borderRadius: 0,
             fontSize: 16,
             fontWeight: 700,
             cursor: "pointer",
+            display: "block",
           }}>
-            See Your AI Visibility Score →
+            See your free AI Visibility Score →
           </button>
         </div>
       </div>
