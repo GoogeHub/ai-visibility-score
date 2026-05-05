@@ -250,7 +250,7 @@ export default function LandingV2() {
         </h2>
       </div>
 
-      {/* Floating URL panel */}
+      {/* Floating URL panel — outer container controls width + padding */}
       <div style={{
         position: "fixed",
         bottom: 0,
@@ -259,45 +259,52 @@ export default function LandingV2() {
         width: "100%",
         maxWidth: 500,
         zIndex: 100,
-        backgroundColor: "#fff",
-        borderRadius: "20px 20px 0 0",
-        boxShadow: "0 -6px 40px rgba(0,0,0,0.15)",
+        padding: "0 12px 12px",
+        boxSizing: "border-box",
       }}>
-        <div style={{ padding: "24px 24px 16px" }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 14, textAlign: "center" }}>
-            Check your site's AI Visibility
-          </div>
-          <input
-            type="text"
-            placeholder="https://yourbusiness.com"
-            style={{
-              width: "100%",
-              padding: "13px 16px",
-              fontSize: 16,
-              border: "1px solid #e2e8f0",
-              borderRadius: 10,
-              outline: "none",
-              color: "#0f172a",
-              backgroundColor: "#f8fafc",
-              boxSizing: "border-box",
-              display: "block",
-            }}
-          />
-        </div>
-        <button style={{
-          width: "100%",
-          padding: "16px",
-          backgroundColor: "#1143cc",
-          color: "#fff",
-          border: "none",
-          borderRadius: "0 0 0 0",
-          fontSize: 16,
-          fontWeight: 700,
-          cursor: "pointer",
-          display: "block",
+        {/* Inner white panel */}
+        <div style={{
+          backgroundColor: "#fff",
+          borderRadius: 20,
+          boxShadow: "0 -6px 40px rgba(0,0,0,0.2)",
+          overflow: "hidden",
         }}>
-          See your free AI Visibility Score →
-        </button>
+          <div style={{ padding: "24px 24px 16px" }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 14, textAlign: "center" }}>
+              Check your site's AI Visibility
+            </div>
+            <input
+              type="text"
+              placeholder="https://yourbusiness.com"
+              style={{
+                width: "100%",
+                padding: "13px 16px",
+                fontSize: 16,
+                border: "1px solid #e2e8f0",
+                borderRadius: 10,
+                outline: "none",
+                color: "#0f172a",
+                backgroundColor: "#f8fafc",
+                boxSizing: "border-box",
+                display: "block",
+              }}
+            />
+          </div>
+          <button style={{
+            width: "100%",
+            padding: "16px",
+            backgroundColor: "#1143cc",
+            color: "#fff",
+            border: "none",
+            borderRadius: 0,
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "block",
+          }}>
+            See your free AI Visibility Score →
+          </button>
+        </div>
       </div>
 
     </div>
